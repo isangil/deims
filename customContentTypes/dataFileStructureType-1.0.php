@@ -911,7 +911,7 @@ other|Other',
     'description' => 'Range of dates (time span) of your data set.   If you have just a single date, please repeat the values in the beginning and end dates ',
     'group' => 'group_temporal_coverage',
     'required' => 0,
-    'multiple' => '0',
+    'multiple' => '1',
     'repeat' => 0,
     'todate' => 'required',
     'granularity' => 
