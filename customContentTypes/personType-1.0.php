@@ -1,7 +1,7 @@
 $content['type']  = array (
   'name' => 'Person',
   'type' => 'person',
-  'description' => 'A person doing research at an LTER Site',
+  'description' => 'Details of a person affiliated with the research station or site.',
   'title_label' => 'Full name',
   'body_label' => '',
   'min_word_count' => '0',
@@ -13,23 +13,22 @@ $content['type']  = array (
     'sticky' => false,
     'revision' => false,
   ),
+  'upload' => '1',
   'old_type' => 'person',
   'orig_type' => '',
   'module' => 'node',
   'custom' => '1',
   'modified' => '1',
   'locked' => '0',
-  'content_profile_use' => false,
-  'comment' => 2,
-  'comment_default_mode' => 4,
-  'comment_default_order' => 1,
-  'comment_default_per_page' => 50,
-  'comment_controls' => 3,
+  'comment' => '2',
+  'comment_default_mode' => '4',
+  'comment_default_order' => '1',
+  'comment_default_per_page' => '50',
+  'comment_controls' => '3',
   'comment_anonymous' => 0,
-  'comment_subject_field' => 1,
-  'comment_preview' => 1,
-  'comment_form_location' => 0,
-  'links_related_types' => 0,
+  'comment_subject_field' => '1',
+  'comment_preview' => '1',
+  'comment_form_location' => '0',
 );
 $content['fields']  = array (
   0 => 
@@ -106,7 +105,7 @@ $content['fields']  = array (
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '-2',
+    'weight' => '-3',
     'rows' => 5,
     'size' => '60',
     'description' => '',
@@ -183,7 +182,7 @@ $content['fields']  = array (
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '-1',
+    'weight' => '-2',
     'rows' => 5,
     'size' => '60',
     'description' => 'The organization name that this person is affiliated with',
@@ -275,7 +274,7 @@ $content['fields']  = array (
     'type' => 'text',
     'widget_type' => 'optionwidgets_select',
     'change' => 'Change basic information',
-    'weight' => 0,
+    'weight' => '-1',
     'description' => '',
     'default_value' => 
     array (
@@ -355,7 +354,7 @@ NONE|None',
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '1',
+    'weight' => 0,
     'rows' => 5,
     'size' => '60',
     'description' => '',
@@ -432,7 +431,7 @@ NONE|None',
     'type' => 'email',
     'widget_type' => 'email_textfield',
     'change' => 'Change basic information',
-    'weight' => '2',
+    'weight' => '1',
     'size' => '60',
     'description' => '',
     'default_value' => 
@@ -501,7 +500,7 @@ NONE|None',
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '4',
+    'weight' => '2',
     'rows' => 5,
     'size' => '100',
     'description' => 'The physical address where this person can be contacted',
@@ -593,7 +592,7 @@ NONE|None',
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '5',
+    'weight' => '3',
     'rows' => 5,
     'size' => '60',
     'description' => 'The city, part of the address for this person',
@@ -685,7 +684,7 @@ NONE|None',
     'type' => 'text',
     'widget_type' => 'optionwidgets_select',
     'change' => 'Change basic information',
-    'weight' => '6',
+    'weight' => '4',
     'description' => 'State, part of the person\'s address ',
     'default_value' => 
     array (
@@ -821,7 +820,7 @@ WY|	Wyoming',
     'type' => 'number_integer',
     'widget_type' => 'number',
     'change' => 'Change basic information',
-    'weight' => '7',
+    'weight' => '5',
     'description' => 'the 5 digit zip code, part of the address',
     'default_value' => 
     array (
@@ -911,7 +910,7 @@ WY|	Wyoming',
     'type' => 'text',
     'widget_type' => 'optionwidgets_select',
     'change' => 'Change basic information',
-    'weight' => '8',
+    'weight' => '6',
     'description' => 'The country, part of the physical address',
     'default_value' => 
     array (
@@ -1241,7 +1240,7 @@ Zimbabwe',
     'type' => 'ca_phone',
     'widget_type' => 'phone_textfield',
     'change' => 'Change basic information',
-    'weight' => '9',
+    'weight' => '7',
     'size' => 60,
     'description' => '',
     'default_value' => 
@@ -1314,7 +1313,7 @@ Zimbabwe',
     'type' => 'ca_phone',
     'widget_type' => 'phone_textfield',
     'change' => 'Change basic information',
-    'weight' => '10',
+    'weight' => '8',
     'size' => 60,
     'description' => 'The fax number where this person can be reached',
     'default_value' => 
@@ -1402,7 +1401,7 @@ Zimbabwe',
     'type' => 'number_integer',
     'widget_type' => 'number',
     'change' => 'Change basic information',
-    'weight' => '11',
+    'weight' => '9',
     'description' => '',
     'default_value' => 
     array (
@@ -1472,97 +1471,12 @@ Zimbabwe',
   ),
   14 => 
   array (
-    'label' => 'List in directory?',
-    'field_name' => 'field_person_list',
-    'type' => 'text',
-    'widget_type' => 'optionwidgets_buttons',
-    'change' => 'Change basic information',
-    'weight' => '12',
-    'description' => 'Check yes or no, whether this person should show up in the official Luquillo Personnel Directory',
-    'default_value' => 
-    array (
-      0 => 
-      array (
-        'value' => 'No',
-      ),
-    ),
-    'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_person_list' => 
-      array (
-        'value' => 'No',
-      ),
-    ),
-    'group' => false,
-    'required' => 1,
-    'multiple' => '0',
-    'text_processing' => '0',
-    'max_length' => '',
-    'allowed_values' => 'No
-Yes',
-    'allowed_values_php' => '',
-    'op' => 'Save field settings',
-    'module' => 'text',
-    'widget_module' => 'optionwidgets',
-    'columns' => 
-    array (
-      'value' => 
-      array (
-        'type' => 'text',
-        'size' => 'big',
-        'not null' => false,
-        'sortable' => true,
-        'views' => true,
-      ),
-    ),
-    'display_settings' => 
-    array (
-      'label' => 
-      array (
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => 
-      array (
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => 
-      array (
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      4 => 
-      array (
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      2 => 
-      array (
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      3 => 
-      array (
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'token' => 
-      array (
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-  ),
-  15 => 
-  array (
     'label' => 'person_uid',
     'field_name' => 'field_person_uid',
     'type' => 'userreference',
     'widget_type' => 'userreference_autocomplete',
     'change' => 'Change basic information',
-    'weight' => '13',
+    'weight' => '11',
     'autocomplete_match' => 'contains',
     'size' => 60,
     'reverse_link' => 0,
@@ -1653,14 +1567,14 @@ Yes',
       ),
     ),
   ),
-  16 => 
+  15 => 
   array (
     'label' => 'Publications',
     'field_name' => 'field_person_pubs',
     'type' => 'nodereference',
     'widget_type' => 'nodereference_autocomplete',
     'change' => 'Change basic information',
-    'weight' => '14',
+    'weight' => '12',
     'autocomplete_match' => 'contains',
     'size' => 60,
     'description' => 'Publications by this person',
@@ -1709,6 +1623,7 @@ Yes',
       'institution_links' => false,
       'luq_news' => false,
       'tests' => false,
+      'slide' => false,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -1768,11 +1683,11 @@ Yes',
 );
 $content['extra']  = array (
   'title' => '-5',
-  'revision_information' => '16',
+  'revision_information' => '13',
   'author' => '15',
-  'options' => '17',
-  'comment_settings' => '19',
-  'menu' => '3',
-  'taxonomy' => '-3',
-  'path' => '18',
+  'options' => '16',
+  'comment_settings' => '18',
+  'menu' => '14',
+  'path' => '17',
+  'attachments' => '19',
 );
