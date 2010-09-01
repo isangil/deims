@@ -687,7 +687,7 @@ $content['fields']  = array (
     ),
     'group' => false,
     'required' => 0,
-    'multiple' => '0',
+    'multiple' => '1',
     'referenceable_types' => 
     array (
       'data_file' => 'data_file',
