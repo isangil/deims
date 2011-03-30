@@ -5,7 +5,7 @@
 Have you tried using the autocomplete in a form (say, searching for a the owner of a data set)?
 Things get frustrating if the item (person in this case) is nowhere to be found.
 Having a "Create new (person)node" link right below the node reference field would help.  And more if this is a pop-up that does not force to drive away from the current form. 
-= Why this?=
+== Why this?==
 Having gone through the exercise of installing the modules, etc, to create the desired functionality three times, and always having to relearn the how-to, I decided to write down a precise sequence of steps to enable pop-ups in node reference fields forms.
 
 == Pre-requisites, dependencies, context ==
