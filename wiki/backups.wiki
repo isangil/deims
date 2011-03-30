@@ -1,7 +1,7 @@
 #labels Phase-Support
-#what you should always do
+==what you should always do==
 
-== Emergencies happen =
+=== Emergencies happen ===
 This is a bit beyond the scope of the project, but you need to backup and have rapid redeployment plans, anyway.
 
 It does not matter how careful and delicate you are, and it does not matter how solid, hacker proof your system are.  You may have six raids and what not, but your DEIMS instance will go down - no doubt.
