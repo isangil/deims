@@ -5,7 +5,7 @@
  * 2) Calculate vid version 
  */                           
                                       
-  require_once("views-bonus-eml-export-eml-funcions.tpl.php");
+  require_once("eml_functions.php");
 
   foreach ($themed_rows as $row) {
 
@@ -43,7 +43,7 @@
           $ref_nid_array = $node->$field_name; 
           if ($dataset_reference_name == 'dataset_site' &&
             $node->field_dataset_site_ref[0]['nid']) {
-            $ref_nodes = views_bonus_eml_get_site_information($ref_nid_array);
+            $ref_nodes = eml_get_site_information($ref_nid_array);
           } 
           else {
             foreach ($ref_nid_array as $v) {
@@ -57,7 +57,7 @@
       } 
 
       // if ($node->field_dataset_site_ref[0]['nid']) {
-      //   $site_nodes = views_bonus_eml_get_site_information($node->field_dataset_site_ref);
+      //   $site_nodes = eml_get_site_information($node->field_dataset_site_ref);
       //   $dataset_node['dataset_site'] = $site_nodes;
       // }
 
@@ -82,7 +82,7 @@
             }
     //      sites
             if (isset($datafile_node->field_datafile_site_ref[0]['nid'])) {
-              $datafile_site_nodes = views_bonus_eml_get_site_information($datafile_node->field_datafile_site_ref);
+              $datafile_site_nodes = eml_get_site_information($datafile_node->field_datafile_site_ref);
             }
     //      all file related data
             $datafile_nodes[] = array ('datafile'       => $datafile_node,
@@ -98,6 +98,58 @@
    * 1a) create dataset variables here
    */
 
+class DataFile {
+  public $node;
+
+  public function __construct($thenode) {
+    $this->node = $thenode;
+  }
+
+  public function __get($name) {
+    $tries = array(
+                field_datafile . $name,
+                field_ . $name,
+                $name,
+              );
+    foreach ( $tries as $try) {
+      if (property_exists($this->node, $try)) {
+        return eml_value($this->node->$try);
+      }
+    }
+    drupal_set_message("eml_view: could not find datafile property $name", 'error');
+    return NULL;
+  }
+}
+
+class DataSet {
+  public $node;
+
+  public function __construct($thenode) {
+    $this->node = $thenode;
+  }
+
+  public function __get($name) {
+    $tries = array(
+                field_dataset_ . $name,
+                field_ . $name,
+                $name,
+              );
+    foreach ( $tries as $try) {
+      if (property_exists($this->node, $try)) {
+        return eml_value($this->node->$try);
+      }
+    }
+    drupal_set_message("eml_view: could not find dataset property $name", 'error');
+    return NULL;
+  }
+
+  public function has_coor() {
+    return (bool) ($this->coor_n || $this->coor_s || $this->coor_e || $this->coor_w);
+  }
+}
+
+    $dataset = new DataSet($dataset_node['dataset']);
+
     $dataset_short_name        = $dataset_node['dataset']->field_dataset_short_name;
     $dataset_title             = $dataset_node['dataset']->title;
     $dataset_publication_date  = $dataset_node['dataset']->field_dataset_publication_date;
@@ -109,6 +161,11 @@
     $dataset_methods           = $dataset_node['dataset']->field_methods;
     $dataset_id                = $dataset_node['dataset']->field_dataset_id;
     $dataset_related_links     = $dataset_node['dataset']->field_dataset_related_links;
+/*    $dataset_geodesc           = eml_value($dataset_node['datafile']->field_dataset_geodesc);
+    $dataset_coor_n           = eml_value($dataset_node['datafile']->field_dataset_coor_n);
+    $dataset_coor_s           = eml_value($dataset_node['datafile']->field_dataset_coor_s);
+    $dataset_coor_e           = eml_value($dataset_node['datafile']->field_dataset_coor_e);
+    $dataset_coor_w           = eml_value($dataset_node['datafile']->field_dataset_coor_w);*/
     // have to check those two fields due to strange Notice after reinstall
     // TODO: find why those and only those?
     if (isset($dataset_node['dataset']->field_instrumentation)){
@@ -123,11 +180,7 @@
     global $user;
 
     $current_destination = drupal_get_destination();
-    if (empty($user->uid)) {
-      drupal_set_message('Please login in');
-      drupal_goto('user/login', $current_destination);
-    }
-    elseif (!$last_settings['last_acronym']) {
+    if (!$last_settings['last_acronym']) {
       drupal_set_message("Please provide the site specific settings");
       drupal_goto('eml_config', $current_destination);
     }
@@ -135,7 +188,7 @@
     $acr = $last_settings['last_acronym'];
     $metadata_provider_arr     = array (node_load($last_settings['last_metadata_provider_ref']));
     $publisher_arr             = array (node_load($last_settings['last_publisher_ref']));
-    $views_bonus_eml_site_name = variable_get('site_name', NULL);
+    $eml_site_name = variable_get('site_name', NULL);
 
     /* -----------------
      * 2) calculate vid version

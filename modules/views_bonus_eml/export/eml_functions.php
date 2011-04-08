@@ -9,6 +9,34 @@
  *
  */
 
+global $eml_indent; $eml_indent = 0;
+function eml_indent ($inc = 0) {
+  global $eml_indent;
+  if ($inc < 0) $eml_indent += $inc;
+  echo str_repeat("  ", $eml_indent);
+  if ($inc > 0) $eml_indent += $inc;
+}
+
+function eml_value($variable) {
+  $parent = $variable;
+  $child = reset($parent);
+  while (is_array($parent)) {
+    $parent = $child;
+    if (isset($parent['value'])) {
+      $child = $parent['value'];
+    } else {
+      $child = reset($parent);
+    }
+  }
+  if (!is_array($parent)) {
+    return $parent;
+  } else if (!empty($child)) {
+    return $child;
+  } else {
+    drupal_set_message("eml_view: could not determine value for: $variable", 'error');
+  }
+}
+
 function prepare_settings() {
   unset($last_settings);
 
@@ -26,39 +54,39 @@ function prepare_settings() {
 }
 
 // add allowed HTML tags here
-function views_bonus_eml_my_strip_tags($content = '') {
+function eml_my_strip_tags($content = '') {
   $content = str_replace('&nbsp;', ' ', $content);  
   $content = str_replace('&amp;', ' and ', $content); 
   $content = str_replace(' & ', ' and ', $content); 
 //  return strip_tags($content, '<p><h1><h2><h3><h4><h5><a><pre><para>');
-  return strip_tags($content, '<para>');
+  return strip_tags($content, '<para><literalLayout>');
 }
 
-function views_bonus_eml_print_open_tag($tag) {
-  print '<' . $tag . '>';
+function eml_open_tag($tag) {
+  print eml_indent(1) . '<' . $tag . ">\n";
 }
 
-function views_bonus_eml_print_close_tag($tag) {
-  print '</' . $tag . '>';
+function eml_close_tag($tag) {
+  print eml_indent(-1) . '</' . $tag . ">\n";
 }
 
-function views_bonus_eml_print_line($label, $content, $attribute_name = '', $attribute_value = '') {
+function eml_print_line($label, $content, $attribute_name = '', $attribute_value = '') {
   if ($content) {
     $attribute_value ? $attribute = ' ' . $attribute_name . '="' . $attribute_value . '"' : $attribute = '';
     
-    print '<' . $label .  $attribute . '>' . views_bonus_eml_my_strip_tags($content) . '</' . $label . '>';
+    print eml_indent() . '<' . $label .  $attribute . '>' . eml_my_strip_tags($content) . '</' . $label . ">\n";
   }
 }
 
-function views_bonus_eml_print_all_values($tag, $content) {
+function eml_print_all_values($tag, $content) {
   if (isset($content[0]['value'])) {
     foreach ($content as $inner_array) {
-        views_bonus_eml_print_line($tag, views_bonus_eml_my_strip_tags($inner_array['value']));
+        eml_print_line($tag, eml_my_strip_tags($inner_array['value']));
     }
   }
 }
 
-function views_bonus_eml_print_person($person_tag, $content) {
+function eml_print_person($person_tag, $content) {
   if ($content[0]->nid) {
     foreach ($content as $person_node) {
       $person_first_name    = $person_node->field_person_first_name;
@@ -79,79 +107,79 @@ function views_bonus_eml_print_person($person_tag, $content) {
       $not_show_role        = array ('metadataProvider', 'creator', 'contact', 'publisher');
 
       if (in_array($person_tag, $not_show_role)) {
-        views_bonus_eml_print_open_tag($person_tag);
+        eml_open_tag($person_tag);
       } else {
-        views_bonus_eml_print_open_tag('associatedParty');
+        eml_open_tag('associatedParty');
       }
       if($person_last_name[0]['value']){
-        views_bonus_eml_print_open_tag('individualName');
-          views_bonus_eml_print_all_values('givenName',        $person_first_name);
-          views_bonus_eml_print_all_values('surName',          $person_last_name);
-        views_bonus_eml_print_close_tag('individualName');
+        eml_open_tag('individualName');
+          eml_print_all_values('givenName',        $person_first_name);
+          eml_print_all_values('surName',          $person_last_name);
+        eml_close_tag('individualName');
       }
       if ($person_organization[0]['value']) {
-        views_bonus_eml_print_all_values('organization',       $person_organization);
+        eml_print_all_values('organizationName',       $person_organization);
       }
       if ($person_address[0]['value'] ||
           $person_city[0]['value']    ||
           $person_country[0]['value']) {
-        views_bonus_eml_print_open_tag('address');
-          views_bonus_eml_print_all_values('deliveryPoint',      $person_address);
-          views_bonus_eml_print_all_values('city',               $person_city);
-          views_bonus_eml_print_all_values('administrativeArea', $person_state);
-          views_bonus_eml_print_all_values('postalCode',         $person_zipcode);
-          views_bonus_eml_print_all_values('country',            $person_country);
-        views_bonus_eml_print_close_tag('address');
+        eml_open_tag('address');
+          eml_print_all_values('deliveryPoint',      $person_address);
+          eml_print_all_values('city',               $person_city);
+          eml_print_all_values('administrativeArea', $person_state);
+          eml_print_all_values('postalCode',         $person_zipcode);
+          eml_print_all_values('country',            $person_country);
+        eml_close_tag('address');
       }
-      views_bonus_eml_print_line('phone', $person_phone[0]['value'],
+      eml_print_line('phone', $person_phone[0]['value'],
                                             'phonetype', 'voice');
-      views_bonus_eml_print_line('phone', $person_fax[0]['value'],
+      eml_print_line('phone', $person_fax[0]['value'],
                                             'phonetype', 'fax');
       if ($person_email[0]['email']) {
         foreach($person_email as $email) {
-          views_bonus_eml_print_line('electronicMailAddress', $email['email']);
+          eml_print_line('electronicMailAddress', $email['email']);
         }
       }
-      views_bonus_eml_print_all_values('userId', $person_personid);
+      eml_print_all_values('userId', $person_personid);
       if (in_array($person_tag, $not_show_role)) {
-        views_bonus_eml_print_close_tag($person_tag);
+        eml_close_tag($person_tag);
       } else {
-        views_bonus_eml_print_line('role', $person_tag);
-        views_bonus_eml_print_close_tag('associatedParty');
+        eml_print_line('role', $person_tag);
+        eml_close_tag('associatedParty');
       }
     }
   }
-} // end of function "views_bonus_eml_print_person"
+} // end of function "eml_print_person"
 
 
-function views_bonus_eml_print_temporal_coverage($beg_end_date) {
+function eml_print_temporal_coverage($beg_end_date) {
   if ($beg_end_date[0]['value']) {
-    views_bonus_eml_print_open_tag('temporalCoverage');
+    eml_open_tag('temporalCoverage');
     foreach($beg_end_date as $dataset_date) {
-      $first_date  = $dataset_date['value'];
-      $second_date = $dataset_date['value2'];
+      $first_date = preg_replace('/T.*/', '', $dataset_date['value']);
+      $second_date = preg_replace('/T.*/', '', $dataset_date['value2']);
       if ($first_date == $second_date) {
-         views_bonus_eml_print_open_tag('singleDateTime');
-           views_bonus_eml_print_line('calendarDate', $first_date);
-         views_bonus_eml_print_close_tag('singleDateTime');
+         eml_open_tag('singleDateTime');
+           eml_print_line('calendarDate', $first_date);
+         eml_close_tag('singleDateTime');
       }
       else {
-        views_bonus_eml_print_open_tag('rangeOfDates');
-          views_bonus_eml_print_open_tag('beginDate');
-            views_bonus_eml_print_line('calendarDate', $first_date);
-          views_bonus_eml_print_close_tag('beginDate');
-          views_bonus_eml_print_open_tag('endDate');
-            views_bonus_eml_print_line('calendarDate', $second_date);
-          views_bonus_eml_print_close_tag('endDate');
-        views_bonus_eml_print_close_tag('rangeOfDates');
+        eml_open_tag('rangeOfDates');
+          eml_open_tag('beginDate');
+            eml_print_line('calendarDate', $first_date);
+          eml_close_tag('beginDate');
+          eml_open_tag('endDate');
+            eml_print_line('calendarDate', $second_date);
+          eml_close_tag('endDate');
+        eml_close_tag('rangeOfDates');
       }
     }
-    views_bonus_eml_print_close_tag('temporalCoverage');
+    eml_close_tag('temporalCoverage');
   }
-} // end of function "views_bonus_eml_print_temporal_coverage"
+} // end of function "eml_print_temporal_coverage"
 
 // take research_site as geographicCoverage
-function views_bonus_eml_print_geographic_coverage($content) {
+function eml_print_geographic_coverage($content) {
   if (isset($content[0]['site_node']->nid)) {
     foreach ($content as $research_site_node) {
         $research_site_landform   = $research_site_node['site_node']->field_research_site_landform;
@@ -177,7 +205,7 @@ function views_bonus_eml_print_geographic_coverage($content) {
             $research_site_longitude              ||
             $research_site_latitude               ||
             $research_site_elevation[0]['value']) {
-          views_bonus_eml_print_open_tag('geographicCoverage');
+          eml_open_tag('geographicCoverage');
             $geographic_coverage_terms = array (
                                     'Landform',
                                     'Geology',
@@ -192,34 +220,36 @@ function views_bonus_eml_print_geographic_coverage($content) {
             foreach ($geographic_coverage_terms as $geographic_coverage_term) {
               $geo_var_name = 'research_site_' . strtolower($geographic_coverage_term);
               $geo_var      = $$geo_var_name;
-              $geoDesc     .= $geographic_coverage_term . ': ' . $geo_var[0]['value'];
-              if ($geographic_coverage_term != end($geographic_coverage_terms)) {
-               $geoDesc    .= ', ';
+              if (!empty($geo_var[0]['value'])) {
+                $geoDesc     .= $geographic_coverage_term . ': ' . $geo_var[0]['value'];
+                if ($geographic_coverage_term != end($geographic_coverage_terms)) {
+                 $geoDesc    .= ', ';
+                }
               }
             }                              
-            views_bonus_eml_print_line('geographicDescription', $geoDesc);
+            eml_print_line('geographicDescription', $geoDesc);
 
             if ($research_site_longitude || $research_site_latitude) {
-              views_bonus_eml_print_open_tag('boundingCoordinates');
-                views_bonus_eml_print_line('westBoundingCoordinate',  $research_site_longitude);
-                views_bonus_eml_print_line('eastBoundingCoordinate',  $research_site_longitude);
-                views_bonus_eml_print_line('northBoundingCoordinate', $research_site_latitude);
-                views_bonus_eml_print_line('southBoundingCoordinate', $research_site_latitude);
+              eml_open_tag('boundingCoordinates');
+                eml_print_line('westBoundingCoordinate',  $research_site_longitude);
+                eml_print_line('eastBoundingCoordinate',  $research_site_longitude);
+                eml_print_line('northBoundingCoordinate', $research_site_latitude);
+                eml_print_line('southBoundingCoordinate', $research_site_latitude);
               if ($research_site_elevation[0]['value']) {
-                  views_bonus_eml_print_open_tag('boundingAltitudes');
-                    views_bonus_eml_print_all_values('altitudeMinimum',  $research_site_elevation);
-                    views_bonus_eml_print_all_values('altitudeMaximum',  $research_site_elevation);
-                  views_bonus_eml_print_close_tag('boundingAltitudes');
+                  eml_open_tag('boundingAltitudes');
+                    eml_print_all_values('altitudeMinimum',  $research_site_elevation);
+                    eml_print_all_values('altitudeMaximum',  $research_site_elevation);
+                  eml_close_tag('boundingAltitudes');
               }
-              views_bonus_eml_print_close_tag('boundingCoordinates');
+              eml_close_tag('boundingCoordinates');
             }
-          views_bonus_eml_print_close_tag('geographicCoverage');
+          eml_close_tag('geographicCoverage');
         } // endif; check if values exist
     } // endforeach; research_site_nid
   } // endif; $research_site_nid[0]['nid']
-} // end of function views_bonus_eml_print_geographic_coverage
+} // end of function eml_print_geographic_coverage
 
-function views_bonus_eml_get_geo($site_nid) {
+function eml_get_geo($site_nid) {
   unset($geo_lon_lat_point);
     $mysql_connection = db_set_active();
     if (!$mysql_connection) {
@@ -239,12 +269,12 @@ function views_bonus_eml_get_geo($site_nid) {
   return $geo_lon_lat_point;
 }
 
-  function views_bonus_eml_get_site_information($content) {
+  function eml_get_site_information($content) {
     unset($site_nodes);
     foreach ($content as $value) {
       foreach ($value as $site_nid) {
         $site_node = node_load($site_nid);
-        $dataset_geo_lon_lat_point = views_bonus_eml_get_geo($site_nid);
+        $dataset_geo_lon_lat_point = eml_get_geo($site_nid);
         $site_nodes[] = array('site_node' => $site_node,
                               'longitude' => $dataset_geo_lon_lat_point['longitude'],
                               'latitude'  => $dataset_geo_lon_lat_point['latitude'],
