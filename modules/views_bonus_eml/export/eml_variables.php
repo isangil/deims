@@ -98,7 +98,7 @@
    * 1a) create dataset variables here
    */
 
-class DataFile {
+class EMLDataFile {
   public $node;
 
   public function __construct($thenode) {
@@ -121,7 +121,7 @@ class DataFile {
   }
 }
 
-class DataSet {
+class EMLDataSet {
   public $node;
 
   public function __construct($thenode) {
@@ -148,7 +148,7 @@ class DataSet {
   }
 }
 
-    $dataset = new DataSet($dataset_node['dataset']);
+    $dataset = new EMLDataSet($dataset_node['dataset']);
 
     $dataset_short_name        = $dataset_node['dataset']->field_dataset_short_name;
     $dataset_title             = $dataset_node['dataset']->title;

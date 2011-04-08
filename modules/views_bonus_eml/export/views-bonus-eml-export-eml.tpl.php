@@ -122,10 +122,10 @@ eml_open_tag('dataset');
   if ($dataset->geodesc || $dataset->has_coor() || $dataset->site_ref || $dataset->beg_end_date) {
     eml_open_tag('coverage');
     
-    if($dataset->geodesc) {
+    if($dataset->geodesc || $dataset->has_coor()) {
       //NTL added field_dataset_description and field_dataset_coor_# to the dataset content type
       eml_open_tag('geographicCoverage');
-      eml_print_line('geographicDescription', $dataset->geodesc);
+      if($dataset->geodesc) eml_print_line('geographicDescription', $dataset->geodesc);
       if ($dataset->has_coor()) {
         eml_open_tag('boundingCoordinates');
         eml_print_line('westBoundingCoordinate', $dataset->coor_w);
@@ -276,22 +276,9 @@ eml_open_tag('dataset');
 
       if (isset($file_var_array['datafile_sites'][0]['site_node']->nid) || isset($datafile_date[0]['value'])) {
         eml_open_tag('coverage');
-        //     eml_print_geographic_coverage($file_var_array['datafile_sites']);
+        eml_print_geographic_coverage($file_var_array['datafile_sites']);
 
-        eml_open_tag('geographicCoverage');
-        eml_print_line('geographicDescription', $dataset->geodesc);
-        if ($dataset->has_coor()) {
-          eml_open_tag('boundingCoordinates');
-          eml_print_line('westBoundingCoordinate', $dataset->coor_w);
-          eml_print_line('eastBoundingCoordinate',  $dataset->coor_e);
-          eml_print_line('northBoundingCoordinate', $dataset->coor_n);
-          eml_print_line('southBoundingCoordinate', $dataset->coor_s);
-          eml_close_tag('boundingCoordinates');
-        }
-        eml_close_tag('geographicCoverage');
-
-
-         eml_print_temporal_coverage($datafile_date);
+        eml_print_temporal_coverage($datafile_date);
         // taxonomic coverage here
         eml_close_tag('coverage');
       }

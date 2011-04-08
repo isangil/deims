@@ -54,7 +54,7 @@ function prepare_settings() {
 }
 
 // add allowed HTML tags here
-function eml_my_strip_tags($content = '') {
+function eml_strip_tags($content = '') {
   $content = str_replace('&nbsp;', ' ', $content);  
   $content = str_replace('&amp;', ' and ', $content); 
   $content = str_replace(' & ', ' and ', $content); 
@@ -71,17 +71,17 @@ function eml_close_tag($tag) {
 }
 
 function eml_print_line($label, $content, $attribute_name = '', $attribute_value = '') {
-  if ($content) {
+  if (trim($content)) {
     $attribute_value ? $attribute = ' ' . $attribute_name . '="' . $attribute_value . '"' : $attribute = '';
     
-    print eml_indent() . '<' . $label .  $attribute . '>' . eml_my_strip_tags($content) . '</' . $label . ">\n";
+    print eml_indent() . '<' . $label .  $attribute . '>' . eml_strip_tags($content) . '</' . $label . ">\n";
   }
 }
 
 function eml_print_all_values($tag, $content) {
   if (isset($content[0]['value'])) {
     foreach ($content as $inner_array) {
-        eml_print_line($tag, eml_my_strip_tags($inner_array['value']));
+        eml_print_line($tag, eml_strip_tags($inner_array['value']));
     }
   }
 }
