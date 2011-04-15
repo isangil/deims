@@ -1,5 +1,5 @@
 #labels Phase-Requirements
-#New Branch as of April 2011
+=New Branch as of April 2011=
 
 ==Why a new Branch==
 
@@ -10,4 +10,3 @@ The National Biological Information Infrastructure, a program of the USGS is sup
 Currently, this branch is in active development, and a beta version of the package should be complete by May 2011.
 
 You should find features, modules, content types that meet the requirements expressed above. If you want to see the BDP standard you can find it easily googling it.
-
