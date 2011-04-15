@@ -1,0 +1,13 @@
+#labels Phase-Requirements
+#New Branch as of April 2011
+
+==Why a new Branch==
+
+The National Biological Information Infrastructure, a program of the USGS is supporting further development of this tool.  However, the gov. folks would like to see a complete mapping between the information placeholders proposed in the Biological Data Profile (BDP).  The BDP is a profile of the Content Standard for Digital Geospatial Metadata (CSDGM) that implements in XML a mean to create Federal Geographic Data Committee (FGCD) compliant spatial metadata.  
+
+==Status==
+
+Currently, this branch is in active development, and a beta version of the package should be complete by May 2011.
+
+You should find features, modules, content types that meet the requirements expressed above. If you want to see the BDP standard you can find it easily googling it.
+
