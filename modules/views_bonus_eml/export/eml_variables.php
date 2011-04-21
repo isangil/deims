@@ -177,8 +177,6 @@ class EMLDataSet {
                                 
     $last_settings = prepare_settings();     
 
-    global $user;
-
     $current_destination = drupal_get_destination();
     if (!$last_settings['last_acronym']) {
       drupal_set_message("Please provide the site specific settings");
