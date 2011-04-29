@@ -72,8 +72,8 @@ Here is a list of everything I have.
 ||CCK||          Vector Point Format (VPF) Term Description Field (vpfterms_fld)   ||        6.x-1.0     ||
 ||Chaos tool||   Chaos tools (ctools)                         ||        6.x-1.8     ||
 ||Core - optional||  Color (color)                            ||        6.20        ||
-||Core - optional || Comment (comment)||                        ||        6.20        ||
-||Core - optional||  Database logging (dblog)||                 ||        6.20        ||
+||Core - optional || Comment (comment)                       ||        6.20        ||
+||Core - optional||  Database logging (dblog)                ||        6.20        ||
 ||Core - optional||  Help (help)                              ||        6.20        ||
 ||Core - optional||  Menu (menu)                              ||        6.20        ||
 ||Core - optional||  Path (path)                           ||        6.20        ||
