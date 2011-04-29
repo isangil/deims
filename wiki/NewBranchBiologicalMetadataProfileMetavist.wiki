@@ -92,12 +92,12 @@ Here is a list of everything I have.
 ||Date/Time||    Date Timezone (date_timezone)                ||        6.x-2.7     ||
 ||Features||     Features (features)                          ||        6.x-1.0     ||
 ||Form Elements||Hierarchical Select (hierarchical_select)    ||        6.x-3.7     ||
-||ImageCache||   ImageAPI (imageapi)                          ||        6.x-1.9     ||
-||ImageCache||   ImageAPI GD2 (imageapi_gd)                   ||        6.x-1.9     ||
+||ImageCache||ImageAPI (imageapi)     ||        6.x-1.9     ||
+||ImageCache||ImageAPI GD2 (imageapi_gd)     ||        6.x-1.9 ||
 ||Modal frame||  Modal Frame API (modalframe)                 ||        6.x-1.7     ||
-||OpenLayers||   OpenLayers (openlayers)                      ||        6.x-2.0-alpha10 ||
-||OpenLayers||   OpenLayers CCK (openlayers_cck)              ||        6.x-2.0-alpha10 ||
-||OpenLayers||   OpenLayers UI (openlayers_ui)                ||        6.x-2.0-alpha10 ||
+||OpenLayers||OpenLayers (openlayers)     ||        6.x-2.0-alpha10 ||
+||OpenLayers||  OpenLayers CCK (openlayers_cck) ||  6.x-2.0-alpha10 ||
+||OpenLayers|| OpenLayers UI (openlayers_ui)  || 6.x-2.0-alpha10 ||
 ||Other||        Advanced help (advanced_help)                ||        6.x-1.2     ||
 ||Other||        Backup and Migrate (backup_migrate)          ||        6.x-2.4     ||
 ||Other||        BDP Config (bdp_config)                      ||                    ||
