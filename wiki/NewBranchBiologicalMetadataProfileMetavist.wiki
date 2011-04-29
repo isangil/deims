@@ -20,19 +20,19 @@ Custom Content Types (and forms)
 There are a dozen content types involved: 
 Eleven were made by our group, and an additional one, Biblio, was created installing the "biblio" contributed module.
 
---Name----------------------------------Machine name------------
-Analytical Tool                         software
-Biblio                                  biblio
-Browse Graphics                         browse_graphics
-Entity Information                      data_file
-Metadata Record                         data_set
-Methodology                             methodology
-Person, Organization or Position        person
-Planar Coordinate System                planar_coordinate_system
-Process Step	                        process_step
-Research Site                           research_site
-Source Information                      source_info
-Variable (Attribute)	                variable
+||--Name-----------------||--------------Machine name-----------||
+||Analytical Tool        ||               software  || 
+||Biblio                 ||               biblio     ||
+||Browse Graphics        ||               browse_graphics ||
+||Entity Information     ||               data_file  ||
+||Metadata Record        ||               data_set  ||
+||Methodology            ||               methodology ||
+||Person, Organization or Position||      person  ||
+||Planar Coordinate System  ||            planar_coordinate_system ||
+||Process Step	            ||            process_step ||
+||Research Site             ||            research_site ||
+||Source Information        ||            source_info ||
+||Variable (Attribute)	    ||            variable ||
 
 Contrib and Custom Modules
 --------------------------
