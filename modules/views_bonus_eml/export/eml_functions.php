@@ -18,14 +18,29 @@ function eml_indent ($inc = 0) {
 }
 
 function eml_value($variable) {
+  if (isset($variable[0]['value'])) {
+    $items = array();
+    foreach ($variable as $inner_array);
+        $items[] = $inner_array['value'];
+    if (count($items) > 1)
+      return $items;
+    else return $items[0];
+  }
+
+  if (!is_array($variable))
+    return $variable;
+
   $parent = $variable;
-  $child = reset($parent);
+  @($child = reset($parent));
   while (is_array($parent)) {
+    if (count($parent) > 1)
+      return $parent;
+
     $parent = $child;
     if (isset($parent['value'])) {
       $child = $parent['value'];
     } else {
-      $child = reset($parent);
+      @($child = reset($parent));
     }
   }
   if (!is_array($parent)) {
@@ -34,6 +49,7 @@ function eml_value($variable) {
     return $child;
   } else {
     drupal_set_message("eml_view: could not determine value for: $variable", 'error');
+    return NULL;
   }
 }
 
@@ -79,10 +95,12 @@ function eml_print_line($label, $content, $attribute_name = '', $attribute_value
 }
 
 function eml_print_all_values($tag, $content) {
-  if (isset($content[0]['value'])) {
-    foreach ($content as $inner_array) {
-        eml_print_line($tag, eml_strip_tags($inner_array['value']));
-    }
+  $values = eml_value($content);
+  if (!is_array($values))
+    $values = array($values);
+
+  foreach ($values as $inner) {
+    eml_print_line($tag, eml_strip_tags($inner));
   }
 }
 

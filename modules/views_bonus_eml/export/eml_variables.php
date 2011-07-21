@@ -5,7 +5,96 @@
  * 2) Calculate vid version 
  */                           
                                       
-  require_once("eml_functions.php");
+require_once("eml_functions.php");
+
+class EMLVariable {
+  public $node;
+
+  public function __construct($thenode) {
+    $this->node = $thenode;
+  }
+
+  public function __get($name) {
+    $tries = array(
+                field_attribute_ . $name,
+                field_variable_ . $name,
+                field_var_ . $name,
+                field_ . $name,
+                $name,
+              );
+    foreach ( $tries as $try) {
+      if (property_exists($this->node, $try)) {
+        return eml_value($this->node->$try);
+      }
+    }
+    drupal_set_message(print_r($node,true) . "\neml_view: could not find CCKvariable property $name", 'error');
+    return NULL;
+  }
+}
+
+class EMLDataFile {
+  public $node;
+
+  public function __construct($thenode) {
+    $this->node = $thenode;
+  }
+
+  public function __get($name) {
+    $tries = array(
+                field_datafile . $name,
+                field_ . $name,
+                $name,
+              );
+    foreach ( $tries as $try) {
+      if (property_exists($this->node, $try)) {
+        return eml_value($this->node->$try);
+      }
+    }
+    drupal_set_message("eml_view: could not find CCKdatafile property $name", 'error');
+    return NULL;
+  }
+}
+
+class EMLDataSet {
+  public $node;
+
+  public function __construct($thenode) {
+    $this->node = $thenode;
+  }
+
+  public function __get($name) {
+    $tries = array(
+                field_dataset_ . $name,
+                field_ . $name,
+                $name,
+              );
+    foreach ( $tries as $try) {
+      if (property_exists($this->node, $try)) {
+        return eml_value($this->node->$try);
+      }
+    }
+    switch($name) {
+      case 'scope':
+        $last_settings = prepare_settings();     
+        $acr = $last_settings['last_acronym'];
+        return 'knb-lter-' . strtolower($acr);
+      case 'package_id':
+        return $this->scope . '.' . $this->dataset_id . '.' . $this->vid;
+      case 'eml_link':
+        return url('eml_view/' . $this->nid, array('absolute' => true));
+      case 'download_link':
+        return url('data/download/' . $this->nid, array('absolute' => true));
+      default:
+        drupal_set_message("eml_view: could not find CCKdataset property $name", 'error');
+        return NULL;
+    }
+  }
+
+  public function has_coor() {
+    return (bool) ($this->coor_n || $this->coor_s || $this->coor_e || $this->coor_w);
+  }
+ 
+}
 
   foreach ($themed_rows as $row) {
 
@@ -98,55 +187,6 @@
    * 1a) create dataset variables here
    */
 
-class EMLDataFile {
-  public $node;
-
-  public function __construct($thenode) {
-    $this->node = $thenode;
-  }
-
-  public function __get($name) {
-    $tries = array(
-                field_datafile . $name,
-                field_ . $name,
-                $name,
-              );
-    foreach ( $tries as $try) {
-      if (property_exists($this->node, $try)) {
-        return eml_value($this->node->$try);
-      }
-    }
-    drupal_set_message("eml_view: could not find datafile property $name", 'error');
-    return NULL;
-  }
-}
-
-class EMLDataSet {
-  public $node;
-
-  public function __construct($thenode) {
-    $this->node = $thenode;
-  }
-
-  public function __get($name) {
-    $tries = array(
-                field_dataset_ . $name,
-                field_ . $name,
-                $name,
-              );
-    foreach ( $tries as $try) {
-      if (property_exists($this->node, $try)) {
-        return eml_value($this->node->$try);
-      }
-    }
-    drupal_set_message("eml_view: could not find dataset property $name", 'error');
-    return NULL;
-  }
-
-  public function has_coor() {
-    return (bool) ($this->coor_n || $this->coor_s || $this->coor_e || $this->coor_w);
-  }
-}
 
     $dataset = new EMLDataSet($dataset_node['dataset']);
 
@@ -159,7 +199,7 @@ class EMLDataSet {
     $dataset_purpose           = $dataset_node['dataset']->field_dataset_purpose;
     $dataset_maintenance       = $dataset_node['dataset']->field_dataset_maintenance;
     $dataset_methods           = $dataset_node['dataset']->field_methods;
-    $dataset_id                = $dataset_node['dataset']->field_dataset_id;
+    $dataset_id                = $dataset->id; #$dataset_node['dataset']->field_dataset_id;
     $dataset_related_links     = $dataset_node['dataset']->field_dataset_related_links;
 /*    $dataset_geodesc           = eml_value($dataset_node['datafile']->field_dataset_geodesc);
     $dataset_coor_n           = eml_value($dataset_node['datafile']->field_dataset_coor_n);
@@ -215,7 +255,7 @@ class EMLDataSet {
      }
    }
 
-   $package_id = 'knb-lter-' . $acr . '.' . $dataset_id[0]['value']  . '.' . $ver_vid;
+   $package_id = $dataset->package_id;
    $realNumber = 'real';
 
  }

@@ -20,9 +20,9 @@ views-bonus-eml-export-eml.tpl.php
 1. creates a template
 2. populates data into the template
 
-views-bonus-eml-export-eml-vars.tpl.php
+eml_variables.php
 1. takes all the dataset related data from db in an Array
 2. calculates vid version
 
-views-bonus-eml-export-eml-funcions.tpl.php     
+eml_functions.php
 functions, used in previous two files, goes here

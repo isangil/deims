@@ -7,6 +7,21 @@
  */
 
 /**
+ * Implementation of hook_menu() to set up a callback
+ */
+function views_bonus_eml_export_menu() {
+  $items = array();
+  $items['eml/harvest'] = array(
+    'title' => "EML harvest list",
+    'page callback' => 'eml_harvest_list',
+    'access callback' => TRUE,
+    'file' => 'eml_harvest_list.php',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
  * Implementation of hook_views_api().
  */
 function views_bonus_eml_export_views_api() {
@@ -128,3 +143,4 @@ function _views_bonus_eml_export_add_headers(&$view) {
     }
   }
 }
+
