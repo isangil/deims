@@ -1,5 +1,5 @@
 <?php
-// $Id: views-bonus-eml-export-eml-funcions.tpl.php, v 1.0 2010-11-29 ashipunova Exp $
+// $Id: views-bonus-eml-export-eml-functions.tpl.php, v 1.0 2010-11-29 ashipunova Exp $
 // TODO add @file etc
 
 /*
@@ -48,11 +48,10 @@ function eml_value($variable) {
   } else if (!empty($child)) {
     return $child;
   } else {
-    drupal_set_message("eml_view: could not determine value for: $variable", 'error');
+   // drupal_set_message("eml_view: could not determine value for: $variable", 'error');
     return NULL;
   }
 }
-
 function prepare_settings() {
   unset($last_settings);
 
@@ -75,7 +74,7 @@ function eml_strip_tags($content = '') {
   $content = str_replace('&amp;', ' and ', $content); 
   $content = str_replace(' & ', ' and ', $content); 
 //  return strip_tags($content, '<p><h1><h2><h3><h4><h5><a><pre><para>');
-  return strip_tags($content, '<para><literalLayout>');
+  return strip_tags($content, '<para>');
 }
 
 function eml_open_tag($tag) {
@@ -102,6 +101,7 @@ function eml_print_all_values($tag, $content) {
   foreach ($values as $inner) {
     eml_print_line($tag, eml_strip_tags($inner));
   }
+
 }
 
 function eml_print_person($person_tag, $content) {
@@ -200,6 +200,7 @@ function eml_print_temporal_coverage($beg_end_date) {
 function eml_print_geographic_coverage($content) {
   if (isset($content[0]['site_node']->nid)) {
     foreach ($content as $research_site_node) {
+	    $research_site_location   = $research_site_node['site_node']->body;
         $research_site_landform   = $research_site_node['site_node']->field_research_site_landform;
         $research_site_geology    = $research_site_node['site_node']->field_research_site_geology;
         $research_site_soils      = $research_site_node['site_node']->field_research_site_soils;
@@ -211,8 +212,8 @@ function eml_print_geographic_coverage($content) {
         $research_site_elevation  = $research_site_node['site_node']->field_research_site_elevation;
         $research_site_longitude  = $research_site_node['longitude'];
         $research_site_latitude   = $research_site_node['latitude'];
-
-        if ($research_site_landform[0]['value']   ||
+        if ($research_site_location               ||
+		    $research_site_landform[0]['value']   ||
             $research_site_geology[0]['value']    ||
             $research_site_soils[0]['value']      ||
             $research_site_hydrology[0]['value']  ||
@@ -234,16 +235,16 @@ function eml_print_geographic_coverage($content) {
                                     'History',
                                     'siteid',
             );       
-            $geoDesc = '';
+            $geoDesc = 'Location: '.$research_site_location;
             foreach ($geographic_coverage_terms as $geographic_coverage_term) {
               $geo_var_name = 'research_site_' . strtolower($geographic_coverage_term);
               $geo_var      = $$geo_var_name;
               if (!empty($geo_var[0]['value'])) {
-                $geoDesc     .= $geographic_coverage_term . ': ' . $geo_var[0]['value'];
-                if ($geographic_coverage_term != end($geographic_coverage_terms)) {
-                 $geoDesc    .= ', ';
-                }
+              $geoDesc     .= $geographic_coverage_term . ': ' . $geo_var[0]['value'];
+              if ($geographic_coverage_term != end($geographic_coverage_terms)) {
+               $geoDesc    .= ', ';
               }
+             }                              
             }                              
             eml_print_line('geographicDescription', $geoDesc);
 
@@ -257,6 +258,7 @@ function eml_print_geographic_coverage($content) {
                   eml_open_tag('boundingAltitudes');
                     eml_print_all_values('altitudeMinimum',  $research_site_elevation);
                     eml_print_all_values('altitudeMaximum',  $research_site_elevation);
+					eml_print_all_values('altitudeUnits','meter');
                   eml_close_tag('boundingAltitudes');
               }
               eml_close_tag('boundingCoordinates');
@@ -318,4 +320,37 @@ function flatten_array($array, $preserve_keys = 0, &$out = array()) {
 // Url for datafile urls, using Drupal variable
 $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/';
 
+function custom_unit_lookup($unitname){
+  $uniturlbase = "http://unit.lternet.edu/services/unitformat/stmml/unit/name=";
+  // query for "standard units"
+  $uniturl = $uniturlbase.$unitname."ANDscopeId=1";
+  $hdrs =  array( 'http' => array('method' => "GET", 'header' => "Accept: text/xml"));
+  $context = stream_context_create ($hdrs);  // set up the context
+  $unitoutput = file_get_contents($uniturl,FALSE,$context);
+ 
+  $resultunits=explode('<stmml:unit ',$unitoutput);
+  $findme='id="'.$unitname.'"';   
+
+  foreach ($resultunits as $matchunits) {
+   $pos = strpos($matchunits,$findme);
+   if ($pos !== FALSE) {
+	   return array(1,$matchunits);
+   }
+  }
+  // non-standard, but in dictionary
+  $uniturl = $uniturlbase.$unitname;
+  $unitoutput = file_get_contents($uniturl,FALSE,$context);
+  
+  $resultunits=explode("<stmml:unit ",$unitoutput);
+  foreach ($resultunits as $matchunits) {
+   $pos = strpos($matchunits,$findme);
+   if ($pos !== FALSE) {
+       $matchunits = preg_replace('/<\/stmml:unitList>/','',$matchunits);
+	   return array(0,$matchunits);
+   }
+  }
+  // not in dictionary -> return minimalistic construct of unit if no match is evident.
+  $unitout=' id="'.$unitname.'"/>';
+  return array(0,$unitout);
+}
 // public functions end

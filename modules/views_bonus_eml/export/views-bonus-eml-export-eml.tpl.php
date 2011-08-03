@@ -6,26 +6,30 @@
  
 require_once("eml_variables.php");
  
-/*
- * 3) create and populate a template
- */
+  /*
+   * 3) create and populate a template
+   */
 print '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
-?>
+
+  ?>
+
 <eml:eml xmlns:eml='eml://ecoinformatics.org/eml-2.1.0'
-         xmlns:stmml='http://www.xml-cml.org/schema/stmml'
+             xmlns:stmml='http://www.xml-cml.org/schema/stmml'
          xmlns:sw='eml://ecoinformatics.org/software-2.1.0'
          xmlns:cit='eml://ecoinformatics.org/literature-2.1.0'
          xmlns:ds='eml://ecoinformatics.org/dataset-2.1.0'
          xmlns:prot='eml://ecoinformatics.org/protocol-2.1.0'
          xmlns:doc='eml://ecoinformatics.org/documentation-2.1.0'
          xmlns:res='eml://ecoinformatics.org/resource-2.1.0'
-         xmlns:xs='http://www.w3.org/2001/XMLSchema'
-         xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-         xsi:schemaLocation='eml://ecoinformatics.org/eml-2.1.0 file://c:/eml/eml.xsd'
-         packageId='<?php print($package_id)?>'
-         system='knb'>
+             xmlns:xs='http://www.w3.org/2001/XMLSchema'
+             xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+         xsi:schemaLocation='eml://ecoinformatics.org/eml-2.1.0 http://nis.lternet.edu/schemas/EML/eml-2.1.0/eml.xsd'
+             packageId='<?php print($package_id)?>'
+             system='knb'>
+
 <access scope="document" order="allowFirst" authSystem="knb">
-<?php
+  <?php
+
 //TODO: access tag group - from config file, or from site variable, or... here is my take !!!
 eml_indent(1);
 if ($acr) {
@@ -44,34 +48,37 @@ if ($acr) {
 </access>
 <?php
 eml_indent(-1);
-/*
- * dataset start
- */
+    /*
+     * dataset start
+     */
+
+
 eml_open_tag('dataset');
 eml_print_all_values('shortName', $dataset_short_name);
 eml_print_line('title', $dataset_title);
 
-// Person refs start
+ // Person refs start
 eml_print_person('creator', $dataset_node['dataset_owner']);
-// metadataProvider from settings
+ // metadataProvider from settings
 eml_print_person('metadataProvider', $metadata_provider_arr);
 
-$associated_party_arr = array (
-  'data manager'         => 'dataset_datamanager',
-  'field crew'           => 'dataset_fieldcrew',
-  'labcrew'              => 'dataset_labcrew',
-  'associate researcher' => 'dataset_ext_assoc',
-);
+  $associated_party_arr = array (
+     'data manager'         => 'dataset_datamanager',
+     'field crew'           => 'dataset_fieldcrew',
+     'labcrew'              => 'dataset_labcrew',
+     'associate researcher' => 'dataset_ext_assoc',
+   );
 
-if ($associated_party_arr) {
-  foreach ($associated_party_arr as $key => $value) {
-    if (isset($dataset_node[$value][0]->nid)) {
+  if ($associated_party_arr) {
+    foreach ($associated_party_arr as $key => $value) {
+       if (isset($dataset_node[$value][0]->nid)) {
         eml_print_person($key, $dataset_node[$value]);
+       }
     }
-  }
-}    
-
-//pubDate
+  }    
+        
+ //pubDate
+$dataset_publication_date = preg_replace('/\s00:00:00/', '', $dataset_publication_date[0]['value']); 
 eml_print_all_values('pubDate',  $dataset_publication_date);
 
 eml_print_line('language', $last_settings['last_language']);
@@ -120,7 +127,6 @@ if (!empty($keyword_vids)) {
     eml_close_tag('keywordSet');
   }
 }
-
 if ($dataset_add_info[0]['value']) {
   eml_open_tag('additionalInfo');
     eml_open_tag('para');
@@ -144,14 +150,17 @@ eml_close_tag('intellectualRights');
 $dataset_datafile_path = $dataset_node['dataset_datafiles'][0]['datafile']->field_data_file[0]['filepath'];
 if (isset($dataset_datafile_path) && !isset($dataset_node['dataset_datafiles'][1])) {
   eml_open_tag('distribution');
-    eml_print_line('url', $urlBase . dirname($dataset_datafile_path));
+    eml_open_tag('online');
+      eml_print_line('url', $urlBase . dirname($dataset_datafile_path));
+	eml_close_tag('online');
   eml_close_tag('distribution');
 }
 
 if ($dataset->geodesc || $dataset->has_coor() || $dataset->site_ref || $dataset->beg_end_date) {
   eml_open_tag('coverage');
-  
-  if($dataset->geodesc || $dataset->has_coor()) {
+  if ($dataset->site_ref) {
+    eml_print_geographic_coverage($dataset_node['dataset_site']);
+  }elseif($dataset->geodesc || $dataset->has_coor()) {
     //NTL added field_dataset_description and field_dataset_coor_# to the dataset content type
     eml_open_tag('geographicCoverage');
     if($dataset->geodesc) eml_print_line('geographicDescription', $dataset->geodesc);
@@ -164,19 +173,16 @@ if ($dataset->geodesc || $dataset->has_coor() || $dataset->site_ref || $dataset-
       eml_close_tag('boundingCoordinates');
     }
     eml_close_tag('geographicCoverage');
-  } elseif ($dataset->site_ref) {
-    //(non-NTL) get the info from the referenced Site content type instead
-    eml_print_geographic_coverage($dataset_node['dataset_site']);
   }
 
   if ($dataset->beg_end_date) {
-    eml_print_temporal_coverage($datafile_date);
+//    eml_print_temporal_coverage($datafile_date);
+    eml_print_temporal_coverage($dataset_beg_end_date);
   }
 
   // taxonomic coverage here
   eml_close_tag('coverage');
 } 
-
 if ($dataset_purpose[0]['value']) {
   eml_open_tag('purpose');
      eml_open_tag('para');
@@ -205,8 +211,7 @@ if ($dataset_methods[0]['value']) {
     eml_open_tag('methodStep');
       eml_open_tag('description');  
          eml_open_tag('section');
-           eml_open_tag('para');    // TODO: !!! ISG in the future, we may need to parse HTML (like h1,h2,h3, and translate it to EML markup)
-                                                      //!!! if we could detect paragraphs, and translate them into <para>s, better...
+           eml_open_tag('para');    //  ISG  need to translate HTML to EML markup)
               eml_print_all_values('literalLayout', $dataset_methods);
            eml_close_tag('para');
          eml_close_tag('section');
@@ -223,44 +228,43 @@ if ($dataset_methods[0]['value']) {
              eml_close_tag('para');
           eml_close_tag('description');
        eml_close_tag('qualityControl');
-    }
+     }
   eml_close_tag('methods');
 }
 
-//TODO:  project (from CCT research_project). !!! ISG
+ //TODO:  project (from CCT research_project). !!! ISG
 
-// Data_file start
+ // Data_file start
 unset($file_var_array);
-if ($dataset_node['dataset_datafiles'] && $dataset_node['dataset_datafiles'][0]['datafile']->nid) {
-  foreach ($dataset_node['dataset_datafiles'] as $file_var_array) {
-
-    // Collect all data_file values here to use in a conditions  
-    $file_data_file         = $file_var_array['datafile']->field_data_file;
-    $datafile_description   = $file_var_array['datafile']->field_datafile_description;
-    $file_num_header_line   = $file_var_array['datafile']->field_num_header_line;
-    $file_num_footer_lines  = $file_var_array['datafile']->field_num_footer_lines;
-    $file_record_delimiter  = $file_var_array['datafile']->field_record_delimiter;
-    $file_orientation       = $file_var_array['datafile']->field_orientation;
-    $file_delimiter         = $file_var_array['datafile']->field_delimiter;
-    $file_quote_character   = $file_var_array['datafile']->field_quote_character;
-    $datafile_date          = $file_var_array['datafile']->field_beg_end_date;
-    $file_instrumentation   = $file_var_array['datafile']->field_instrumentation;
-    $file_methods           = $file_var_array['datafile']->field_methods;
-    $file_quality           = $file_var_array['datafile']->field_quality;   
-    $file_entity_name       = $file_var_array['datafile']->field_datafile_entity_name[0]['value'];
-    $file_external_source   = $file_var_array['datafile']->field_datafile_external_source[0]['value'];
-    $file_title             = $file_var_array['datafile']->title;
+if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][0]['datafile']->nid) {
+    foreach ($dataset_node['dataset_datafiles'] as $file_var_array) {
+        // Collect all data_file values here to use in a conditions  
+		$file_data_file       = $file_var_array['datafile']->field_data_file;
+		$datafile_description = $file_var_array['datafile']->field_datafile_description;
+		$file_num_header_line = $file_var_array['datafile']->field_num_header_line;
+		$file_num_footer_lines= $file_var_array['datafile']->field_num_footer_lines;
+		$file_record_delimiter= $file_var_array['datafile']->field_record_delimiter;
+		$file_orientation     = $file_var_array['datafile']->field_orientation;
+		$file_delimiter       = $file_var_array['datafile']->field_delimiter;
+		$file_quote_character = $file_var_array['datafile']->field_quote_character;
+		$datafile_date        = $file_var_array['datafile']->field_beg_end_date;
+		$file_instrumentation = $file_var_array['datafile']->field_instrumentation;
+		$file_methods         = $file_var_array['datafile']->field_methods;
+		$file_quality         = $file_var_array['datafile']->field_quality;   
+        $file_entity_name     = $file_var_array['datafile']->field_datafile_entity_name[0]['value'];
+        $file_external_source = $file_var_array['datafile']->field_datafile_external_source[0]['value'];
+	    $file_title           = $file_var_array['datafile']->title;
 
     eml_open_tag('dataTable');
 
     if ( !empty($field_entity_name)) { 
         eml_print_line('entityName', $file_entity_name);
     } elseif ( is_array($file_data_file) && !empty($file_data_file[0])) {
-      foreach ($file_data_file as $file_data) {
-        eml_print_line('entityName', $file_data['filename']);
-      }
+        foreach ($file_data_file as $file_data) {
+           eml_print_line('entityName', $file_data['filename']);
+        }
     } else {
-      eml_print_line('entityName', $file_title);
+        eml_print_line('entityName', $file_title);
     }
 
     eml_print_all_values('entityDescription', $datafile_description);
@@ -268,47 +272,47 @@ if ($dataset_node['dataset_datafiles'] && $dataset_node['dataset_datafiles'][0][
     eml_open_tag('physical');
 
     if (is_array($file_data_file) && !empty($file_data_file[0])) {
-      foreach ($file_data_file as $file_data) {
-        eml_print_line('objectName', $file_data['filename']);
-      }
+       foreach ($file_data_file as $file_data) {
+         eml_print_line('objectName', $file_data['filename']);
+       }
     } elseif (!empty($file_entity_name)) {
-      //EML validation won't accept underscores in the objectName string
-      $file_entity_name = preg_replace('/_/', '', $file_entity_name);
-      eml_print_line('objectName', $file_entity_name);
+       //EML validation won't accept underscores in the objectName string
+       $file_entity_name = preg_replace('/_/', '', $file_entity_name);
+       eml_print_line('objectName', $file_entity_name);
     } else {
-      eml_print_line('objectName', $file_title);
+       eml_print_line('objectName', $file_title);
     }
-
     eml_open_tag('dataFormat');
-    // Here some tags are obligate: textFormat, attributeOrientation,
-    // simpleDelimited, fieldDelimiter, complex
-     eml_open_tag('textFormat');
-       eml_print_all_values('numHeaderLines',       $file_num_header_line);
-       eml_print_all_values('numFooterLines',       $file_num_footer_lines);
-       eml_print_all_values('recordDelimiter',      $file_record_delimiter);
-       eml_print_all_values('attributeOrientation', $file_orientation);
-       eml_open_tag('simpleDelimited');                 
-         $file_delimiter[0]['value'] ? $file_delimiter = $file_delimiter[0]['value'] : $file_delimiter = ',';        
-         eml_print_line('fieldDelimiter',  $file_delimiter);
-         eml_print_all_values('quoteCharacter',     $file_quote_character);
-       eml_close_tag('simpleDelimited');
-     eml_close_tag('textFormat');
+      // Here some tags are mandatory: textFormat, attributeOrientation,
+      // simpleDelimited, fieldDelimiter, complex
+      eml_open_tag('textFormat');
+        eml_print_all_values('numHeaderLines',       $file_num_header_line);
+        eml_print_all_values('numFooterLines',       $file_num_footer_lines);
+        eml_print_all_values('recordDelimiter',      $file_record_delimiter);
+        eml_print_all_values('attributeOrientation', $file_orientation);
+        eml_open_tag('simpleDelimited');                 
+          $file_delimiter[0]['value'] ? $file_delimiter = $file_delimiter[0]['value'] : $file_delimiter = ',';        
+          eml_print_line('fieldDelimiter',  $file_delimiter);
+          eml_print_all_values('quoteCharacter',     $file_quote_character);
+        eml_close_tag('simpleDelimited');
+      eml_close_tag('textFormat');
     eml_close_tag('dataFormat');
     if ($file_data_file && $file_data_file[0]['filepath']) {
-     foreach ($file_data_file as $file_data) {
-       eml_open_tag('distribution');
-         eml_print_line('url', $urlBase . $file_data['filepath']);
-       eml_close_tag('distribution');
-     }
+       foreach ($file_data_file as $file_data) {
+          eml_open_tag('distribution');
+		     eml_open_tag('online');
+                eml_print_line('url', $urlBase . $file_data['filepath']);
+		     eml_close_tag('online');
+          eml_close_tag('distribution');
+       }
     }
     eml_close_tag('physical');
 
     if (isset($file_var_array['datafile_sites'][0]['site_node']->nid) || isset($datafile_date[0]['value'])) {
       eml_open_tag('coverage');
-      eml_print_geographic_coverage($file_var_array['datafile_sites']);
-
-      eml_print_temporal_coverage($datafile_date);
-      // taxonomic coverage here
+        eml_print_geographic_coverage($file_var_array['datafile_sites']);
+        eml_print_temporal_coverage($datafile_date);
+        // taxonomic coverage here
       eml_close_tag('coverage');
     }
     if ($file_methods[0]['value']) {
@@ -340,102 +344,106 @@ if ($dataset_node['dataset_datafiles'] && $dataset_node['dataset_datafiles'][0][
     // Variables start
     eml_open_tag('attributeList');
     foreach ($file_var_array['variables'] as $var_node) {
-      $var = new EMLVariable($var_node);
-      eml_open_tag('attribute');
-      if (!isset($var->name)) {
-        eml_print_line('attributeName', $var->name);
-      } else {
-        eml_print_line('attributeName', $var->title);
-      }
-      eml_print_all_values('attributeLabel', $var->label);
-      eml_print_all_values('attributeDefinition', $var->definition);
-
-      if ($var->formatstring || $var->maximum || $var->minimum || $var->precision || ($var->unit )) {
-        eml_open_tag('measurementScale');
-        if ($var->formatstring) {
-          eml_open_tag('dateTime');
-            eml_print_all_values('formatString', $var->formatstring);
-          eml_close_tag('dateTime');
-        }    
-        if ($var->maximum || $var->minimum || $var->precision || ($var->unit )) {
-          eml_open_tag('ratio');
-          if ($var->unit) {
-            eml_open_tag('unit');
-              eml_print_all_values('customUnit', $var->unit);
-            eml_close_tag('unit');
+       $var = new EMLVariable($var_node);
+       eml_open_tag('attribute');
+          if (!isset($var->title)) {
+            eml_print_line('attributeName', $var->title);
+          } else {
+            eml_print_line('attributeName', $var->name);
           }
-          if ($var->precision) {
-            eml_print_all_values('precision', $var->precision);
+          eml_print_all_values('attributeLabel', $var->label);
+          eml_print_all_values('attributeDefinition', $var->definition);
+          eml_open_tag('measurementScale');
+             if ($var->formatstring) {
+                 eml_open_tag('dateTime');
+                    eml_print_all_values('formatString', $var->formatstring);
+                 eml_close_tag('dateTime');
+             }elseif  ($var->unit ) {
+               eml_open_tag('ratio');
+                  eml_open_tag('unit');
+	    		    list($is_standard,$eml_unit) = custom_unit_lookup($var->unit);
+					if ($is_standard) {
+                       eml_print_all_values('standardUnit', $var->unit);
+					} else {
+		 			   $stmmlunits[] = $eml_unit;   // accumulate custom units, already stmml formatted.
+                       eml_print_all_values('customUnit', $var->unit);
+					}
+                  eml_close_tag('unit'); 
+                  if ($var->precision) {
+                    eml_print_all_values('precision', $var->precision);
+                  }
+                  eml_open_tag('numericDomain');
+                    eml_print_line('numberType', $realNumber);
+                    if ($var->maximum || $var->minimum) {
+                      eml_open_tag('bounds');
+			            eml_print_all_values('maximum', $var->maximum);
+		                eml_print_all_values('minimum', $var->minimum);
+				      eml_close_tag('bounds');
+                    }
+                  eml_close_tag('numericDomain');
+               eml_close_tag('ratio');
+             }elseif ($var->code_definition) {
+               eml_open_tag('nominal');
+                 eml_open_tag('nonNumericDomain');
+                   $code_definitions = $var->code_definition;
+                   if (!is_array($code_definitions)){ 
+                      $code_definitions = array($code_definitions);
+                   } 
+                   eml_open_tag('enumeratedDomain');
+                     foreach ($code_definitions as $code_definition) { 
+                       if (preg_match("/(.+)=(.+)/", $code_definition[value], $matches)) {     
+                         eml_open_tag('codeDefinition');
+                           eml_print_line('code', $matches[1]);
+                           eml_print_line('definition', $matches[2]);
+                         eml_close_tag('codeDefinition');
+                       }else{
+					     eml_open_tag('codeDefinition');
+                           eml_print_line('code', 'didnt match the equal');
+                           eml_print_line('definition', 'printed this msg');
+                         eml_close_tag('codeDefinition');
+					   }
+                     }
+                   eml_close_tag('enumeratedDomain');
+                 eml_close_tag('nonNumericDomain');
+               eml_close_tag('nominal');
+             }else{  // any other case
+                eml_open_tag('nominal');
+                   eml_open_tag('nonNumericDomain');
+                      eml_open_tag('textDomain');
+                         eml_print_all_values('definition', $var->definition);
+                      eml_close_tag('textDomain');
+                   eml_close_tag('nonNumericDomain');
+                eml_close_tag('nominal');
+             }  
+          eml_close_tag('measurementScale');
+          if (isset($var->missingvalues)) {
+            eml_open_tag('missingValueCode');
+              foreach ($var->missingvalues as $missingvalue) {
+                 if (preg_match("/(.+)=(.+)/", $missingvalue, $matches)) {
+                    eml_print_line('code',       $matches[1]);
+                    eml_print_line('definition', $matches[2]);
+                 }
+              }
+            eml_close_tag('missingValueCode');
           }
-          eml_open_tag('numericDomain');
-          eml_print_line('numberType', $realNumber);
-          if ($var->maximum || $var->minimum) {
-            eml_open_tag('bounds');
-            eml_print_all_values('maximum', $var->maximum);
-            eml_print_all_values('minimum', $var->minimum);
-            eml_close_tag('bounds');
-          }
-          eml_close_tag('numericDomain');
-          eml_close_tag('ratio');
-        }
-        if ($var->code_definition) {
-          eml_open_tag('nominal');
-          eml_open_tag('nonNumericDomain');
-          $code_definitions = $var->code_definition;
-          if (!is_array($code_definitions)) $code_definitions = array($code_definitions);
-          foreach ($code_definitions as $code_definition) {      
-            eml_open_tag('enumeratedDomain');
-            if (preg_match("/(.+)=(.+)/", $code_definition, $matches)) {     
-              eml_open_tag('codeDefinition');
-              eml_print_line('code', $matches[1]);
-              eml_print_line('definition', $matches[2]);
-              eml_close_tag('codeDefinition');
-            } else {
-              eml_print_line('codeDefinition', $code_definition);
-            }
-            eml_close_tag('enumeratedDomain');
-          }
-          eml_close_tag('nonNumericDomain');
-          eml_close_tag('nominal');
-        }
-        eml_close_tag('measurementScale');
-      } // if formatstring|maximum|minimum|precision|unit
-      if (  !($var->formatstring || $var->maximum || $var->minimum || $var->precision
-                || ($var->unit && $var->unit != 'dimensionless'))) {
-        //basically, if we didn't enter the above for reasons OTHER than $var->unit,
-        //or if we did enter SOLELY for $var->unit, that it WAS dimensionless.
-        //Confusing.  Maybe wrong.
-        eml_print_line('storageType', 'string');
-        eml_open_tag('measurementScale');
-         eml_open_tag('nominal');
-          eml_open_tag('nonNumericDomain');
-           eml_open_tag('textDomain');
-            eml_print_line('definition', 'String composed of any alphanumeric or special characters');
-           eml_close_tag('textDomain');
-          eml_close_tag('nonNumericDomain');
-         eml_close_tag('nominal');
-        eml_close_tag('measurementScale');
-      }
-
-      if (isset($var->missingvalues)) {
-        eml_open_tag('missingValueCode');
-        foreach ($var->missingvalues as $_missingvalue) {
-          if (preg_match("/(.+)=(.+)/", $missingvalue, $matches)) {
-            eml_print_line('code',       $matches[1]);
-            eml_print_line('definition', $matches[2]);
-          }
-          else {
-            eml_print_line('missingValues', $missingvalue);
-          }
-        }
-        eml_close_tag('missingValueCode');
-      }
-      eml_close_tag('attribute');
-    } //foreach variable
+       eml_close_tag('attribute');
+    } //end foreach variable
     eml_close_tag('attributeList');
     eml_close_tag('dataTable');
-  } //foreach table
-}
+  } //end foreach table
+} // end if datafile check
 eml_close_tag('dataset');
+
+if(is_array ($stmmlunits)){
+eml_open_tag('additionalMetadata');
+   eml_open_tag('metadata');
+     eml_open_tag('stmml:unitList xsi:schemaLocation="http://www.xml-cml.org/schema/stmml-1.1 http://nis.lternet.edu/schemas/EML/eml-2.1.0/stmml.xsd"');
+		foreach ($stmmlunits as $stmmlunit){
+		   print "<stmml:unit " .  $stmmlunit . "\n";;
+		}
+      eml_close_tag('stmml:unitList');	
+   eml_close_tag('metadata');
+eml_close_tag('additionalMetadata');
+}
 eml_indent(1);
 eml_close_tag('eml:eml');

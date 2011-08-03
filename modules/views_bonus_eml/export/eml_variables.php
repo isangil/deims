@@ -1,5 +1,5 @@
 <?php
-// $Id: views-bonus-eml-export-eml-vars.tpl.php, v 3.0 11/09/10 ashipunova Exp $
+// $Id: views-bonus-eml-export-eml-variables.tpl.php, v 3.0 11/09/10 ashipunova Exp $
 /*
  * 1) Create an array $dataset_node with all data related to this dataset
  * 2) Calculate vid version 
@@ -24,10 +24,15 @@ class EMLVariable {
               );
     foreach ( $tries as $try) {
       if (property_exists($this->node, $try)) {
-        return eml_value($this->node->$try);
+
+        if(preg_match("/code_definition/", $try)) {
+			return($this->node->$try);
+		}else{
+            return eml_value($this->node->$try);
+		}
       }
     }
-    drupal_set_message(print_r($node,true) . "\neml_view: could not find CCKvariable property $name", 'error');
+   // drupal_set_message(print_r($node,true) . "\neml_view: could not find CCKvariable property $name", 'error');
     return NULL;
   }
 }
@@ -50,7 +55,7 @@ class EMLDataFile {
         return eml_value($this->node->$try);
       }
     }
-    drupal_set_message("eml_view: could not find CCKdatafile property $name", 'error');
+  //  drupal_set_message("eml_view: could not find CCKdatafile property $name", 'error');
     return NULL;
   }
 }
@@ -85,7 +90,7 @@ class EMLDataSet {
       case 'download_link':
         return url('data/download/' . $this->nid, array('absolute' => true));
       default:
-        drupal_set_message("eml_view: could not find CCKdataset property $name", 'error');
+   //     drupal_set_message("eml_view: could not find CCKdataset property $name", 'error');
         return NULL;
     }
   }
@@ -95,7 +100,6 @@ class EMLDataSet {
   }
  
 }
-
   foreach ($themed_rows as $row) {
 
     unset($ver_vid);
@@ -187,9 +191,7 @@ class EMLDataSet {
    * 1a) create dataset variables here
    */
 
-
     $dataset = new EMLDataSet($dataset_node['dataset']);
-
     $dataset_short_name        = $dataset_node['dataset']->field_dataset_short_name;
     $dataset_title             = $dataset_node['dataset']->title;
     $dataset_publication_date  = $dataset_node['dataset']->field_dataset_publication_date;
@@ -199,15 +201,10 @@ class EMLDataSet {
     $dataset_purpose           = $dataset_node['dataset']->field_dataset_purpose;
     $dataset_maintenance       = $dataset_node['dataset']->field_dataset_maintenance;
     $dataset_methods           = $dataset_node['dataset']->field_methods;
-    $dataset_id                = $dataset->id; #$dataset_node['dataset']->field_dataset_id;
+    $dataset_id                = $dataset_node['dataset']->field_dataset_id;
+    $dataset_id_ntl            = $dataset->id;
     $dataset_related_links     = $dataset_node['dataset']->field_dataset_related_links;
-/*    $dataset_geodesc           = eml_value($dataset_node['datafile']->field_dataset_geodesc);
-    $dataset_coor_n           = eml_value($dataset_node['datafile']->field_dataset_coor_n);
-    $dataset_coor_s           = eml_value($dataset_node['datafile']->field_dataset_coor_s);
-    $dataset_coor_e           = eml_value($dataset_node['datafile']->field_dataset_coor_e);
-    $dataset_coor_w           = eml_value($dataset_node['datafile']->field_dataset_coor_w);*/
-    // have to check those two fields due to strange Notice after reinstall
-    // TODO: find why those and only those?
+
     if (isset($dataset_node['dataset']->field_instrumentation)){
       $dataset_instrumentation = $dataset_node['dataset']->field_instrumentation;
     }
@@ -216,6 +213,8 @@ class EMLDataSet {
     }
                                 
     $last_settings = prepare_settings();     
+
+    // global $user;
 
     $current_destination = drupal_get_destination();
     if (!$last_settings['last_acronym']) {
@@ -255,6 +254,7 @@ class EMLDataSet {
      }
    }
 
+//   $package_id = 'knb-lter-' . $acr . '.' . $dataset_id[0]['value']  . '.' . $ver_vid;
    $package_id = $dataset->package_id;
    $realNumber = 'real';
 
