@@ -104,6 +104,17 @@ function eml_print_all_values($tag, $content) {
 
 }
 
+function eml_print_all_methods($tag, $content) {
+  
+  if (!is_array($content))
+    $content = array($content);
+
+  foreach ($content as $inner) {
+    eml_print_line($tag, eml_strip_tags($inner['value']));
+  }
+
+}
+
 function eml_print_person($person_tag, $content) {
   if ($content[0]->nid) {
     foreach ($content as $person_node) {
