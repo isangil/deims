@@ -1,0 +1,21 @@
+#labels Phase-Requirements,Phase-Design
+=The road ahead, proposed enhancements=
+
+==What we propose to make better==
+
+  Here is a small list of changes we propose to make the DEIMS experience more rewarding
+===Usability===
+  * Add _Conditional Fields_ -- simplify form for easy navigation
+  * Add code-code definition CCK module -- break that field in pairs.
+  * Modal Editor integration - add pop-ups that enable editing without leaving the page
+  * Improve documentation
+  * Improve packaging
+
+===Back end changes, improvements===
+  * From _geo_ to _openlayers_ an enhancement via public API
+  * Move node-reference from parent content type to child content type
+  * Integrate Unit Dictionary - either REST service or measure contrib module
+  * Feeds integration, towards consuming actual data and EML
+  * _Scratchpads_ species list (taxonomic coverage and pages)
+  
+This is a moving list, open to discussion. Send emails to the mailing list "deims - AT - googlegroups.com" to contribute    
