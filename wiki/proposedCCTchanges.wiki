@@ -8,7 +8,7 @@
   * Add _Conditional Fields_ 
     * WHY: Simplifies form (uncluttered) for easy, more intuitive navigation.
     * HOW: Uses [http://drupal.org/project/conditional_fields] "conditional_fields" contrib module
-    * STATUS: The module is mature, and usage is quite easy, we tested in many sites. See examples usingConditionalFields .
+    * STATUS: The module is mature, and usage is quite easy, we tested in many sites. See examples [usingConditionalFields] .
   * Add code-code definition CCK module -- break that field in pairs.
     * WHY: Now forces user to use the "=" sign to separate the code from the definition, we want to make it less hackish, provide a placeholder for each piece, yet group the values together
     * HOW: Custom module. I used this tutorial at [http://poplarware.com/articles/cck_field_module]. See also lullabot[http://www.lullabot.com/articles/creating-custom-cck-fields] or other tutorials
