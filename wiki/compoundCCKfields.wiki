@@ -11,4 +11,4 @@ Instead, it would be nice to have two separate fields, one for the code and one 
 
 For examples, see this site [http://deims.lternet.edu/nbiimirror] 
 
-See this screenshot http://inigo.lternet.edu/compundField.jpg
+See this screenshot http://inigo.lternet.edu/compoundFields.jpg
