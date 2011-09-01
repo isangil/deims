@@ -112,7 +112,7 @@ if (!empty($keyword_vids)) {
     $keywords[] = $term->name;
 
   if(!empty($keywords)) {
-    natcasesort($keywords, SORT_STRING);
+    natcasesort($keywords);
     eml_open_tag('keywordSet');
     //eml_print_all_values('keyword', $keywords);
     foreach ($keywords as $keyword)
