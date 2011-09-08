@@ -374,10 +374,10 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
                   }
                   eml_open_tag('numericDomain');
                     eml_print_line('numberType', $realNumber);
-                    if ($var->maximum || $var->minimum) {
+			        if ($var->maximum || $var->minimum) {
                       eml_open_tag('bounds');
-			            eml_print_all_values('maximum', $var->maximum);
-		                eml_print_all_values('minimum', $var->minimum);
+                        eml_print_line('minimum', $var->minimum,'exclusive','false');
+                        eml_print_line('maximum', $var->maximum,'exclusive','false');
 				      eml_close_tag('bounds');
                     }
                   eml_close_tag('numericDomain');
@@ -447,3 +447,4 @@ eml_close_tag('additionalMetadata');
 }
 eml_indent(1);
 eml_close_tag('eml:eml');
+');
