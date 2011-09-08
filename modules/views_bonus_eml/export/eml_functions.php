@@ -169,8 +169,12 @@ function eml_print_person($person_tag, $content) {
           eml_print_line('electronicMailAddress', $email['email']);
         }
       }
-      eml_print_all_values('userId', $person_personid);
-      if (in_array($person_tag, $not_show_role)) {
+      if($person_personid[0]['value']){
+	     // Url for datafile urls, using Drupal variable
+         $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/';
+	     eml_print_line('userId', $person_personid[0]['value'],'directory',$urlBase);
+      }
+	  if (in_array($person_tag, $not_show_role)) {
         eml_close_tag($person_tag);
       } else {
         eml_print_line('role', $person_tag);
@@ -328,8 +332,6 @@ function flatten_array($array, $preserve_keys = 0, &$out = array()) {
   return $out;
 }
 
-// Url for datafile urls, using Drupal variable
-$urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/';
 
 function custom_unit_lookup($unitname){
   $uniturlbase = "http://unit.lternet.edu/services/unitformat/stmml/unit/name=";
