@@ -11,7 +11,7 @@ We think that using the Drupal contributed module _Open Layers_ (OL) instead of 
 
 === How does it work? ===
 
- Install Open Layers, configure the basics.  The module page has good instructions on how to do this.  Once you have your key and your map server of choice, you need to work with the "Well Known Text (WTK)" convention to enter coordinates.  
+ Install Open Layers, configure the basics (The module page, http://drupal.org/project/openlayers) has good instructions on how to do this).  Once you have your key and your map server of choice, you need to work with the "Well Known Text (WTK)" convention to enter coordinates.  
 
   The way I learned the WTK is by using the hand tools from the map.
 
