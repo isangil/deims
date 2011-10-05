@@ -1,7 +1,7 @@
 #labels Phase-Design,Phase-Deploy
-#researchSite
+==Content Type Research Site Changes==
 
-== From Geo to OpenLayers==
+=== From _Geo_ to _OpenLayers_ ===
 
 We think that changing from "geo" to "openLayers (OL)", we will benefit in these ways:
   *OL seems to have more support, and more users  
@@ -9,7 +9,7 @@ We think that changing from "geo" to "openLayers (OL)", we will benefit in these
   *Ability to do bounding boxes (Well Known Text and on map polygon tool)
   *Less buggy
 
-===How does it work? ===
+=== How does it work? ===
 
  Install OpenLayers, configure the basics.  The module page has good instructions on how to do this.  Once you have your key and your map server of choice, you need to work with the "Well Known Text (WTK)" convention to enter coordinates.  
 
