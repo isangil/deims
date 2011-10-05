@@ -3,7 +3,7 @@
 
 === From _Geo_ to _OpenLayers_ ===
 
-We think that changing from "geo" to "openLayers (OL)", we will benefit in these ways:
+We think that using the Drupal contributed module _OpenLayers_ (OL) instead of the contrib module we are using, _geo_, we will benefit in these ways:
   * OL seems to have more support, and more users  
   * OL works with several map servers
   * Ability to do bounding boxes (Well Known Text and on map polygon tool)
