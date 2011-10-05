@@ -23,10 +23,7 @@ As you can see, this is similar to the form for the "research site" content type
 To see the controlled format, let's use the map -- first notice the icons on the upper right side of the map
 http://deims.lternet.edu/mapPolygonIcon.png
 
-Click on the closed polygon icon (the pen is for a single point (or lat-lon) and the hand is to pan... After you click, then you can draw your polygon with successive clicks... double click to close your polygon.
-http://deims.lternet.edu/mapPolygonSelection.png
-
-In the case of the Plum Island, I drew this polygon
+Click on the closed polygon icon (the pen is for a single point (or lat-lon) and the hand is to pan... After you click, then you can draw your polygon with successive clicks... double click to close your polygon. In the case of the Plum Island, I drew this polygon
 http://deims.lternet.edu/pieExample.png
 
 Notice that coordinates appear in the bounding box!  Pay attention to the format used --IM zooming here:
