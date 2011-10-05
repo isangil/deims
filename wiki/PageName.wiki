@@ -35,4 +35,4 @@ That is all.
 
 Ah, here is an excerpt of the BDP/FGDC that produces (similar to EML)
 
-http://deims.lternet.edu/ol2bdp.png
+http://deims.lternet.edu/ol2dbp.png
