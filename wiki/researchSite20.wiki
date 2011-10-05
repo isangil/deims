@@ -15,7 +15,7 @@ We think that using the Drupal contributed module _OpenLayers_ (OL) instead of t
 
   The way I learned the WTK is by using the hand tools from the map.
 
-This is the splash page:
+This is how the form would look like for the new _research site_ :
 http://deims.lternet.edu/splash.png
 
 As you can see, this is similar to the form for the "research site" content type we currently have, except now you see the map, where you can also edit directly. Also, notice the box to place the bounding box coordinates (no need to be a square!)
