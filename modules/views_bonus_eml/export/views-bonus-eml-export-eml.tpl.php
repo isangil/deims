@@ -447,4 +447,3 @@ eml_close_tag('additionalMetadata');
 }
 eml_indent(1);
 eml_close_tag('eml:eml');
-');
