@@ -86,7 +86,7 @@ function eml_close_tag($tag) {
 }
 
 function eml_print_line($label, $content, $attribute_name = '', $attribute_value = '') {
-  if (trim($content)) {
+  if (trim($content)!='') {
     $attribute_value ? $attribute = ' ' . $attribute_name . '="' . $attribute_value . '"' : $attribute = '';
     
     print eml_indent() . '<' . $label .  $attribute . '>' . eml_strip_tags($content) . '</' . $label . ">\n";
