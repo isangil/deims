@@ -149,6 +149,11 @@ function eml_print_person($person_tag, $content) {
       if ($person_organization[0]['value']) {
         eml_print_all_values('organizationName',       $person_organization);
       }
+      else
+      {
+      	eml_print_line('organizationName', "Empty Organization");
+      }
+      
       if ($person_address[0]['value'] ||
           $person_city[0]['value']    ||
           $person_country[0]['value']) {
