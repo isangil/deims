@@ -151,7 +151,7 @@ function eml_print_person($person_tag, $content) {
       }
       else
       {
-      	eml_print_line('organizationName', "Empty Organization");
+      	eml_print_line('organizationName', "NTL LTER");
       }
       
       if ($person_address[0]['value'] ||
