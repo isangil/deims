@@ -68,12 +68,9 @@ function prepare_settings() {
   return $last_settings;
 }
 
-// add allowed HTML tags here
+// add allowed xml tags here and convert any html special characters which are not allow in xml.
 function eml_strip_tags($content = '') {
-  $content = str_replace('&nbsp;', ' ', $content);  
-  $content = str_replace('&amp;', ' and ', $content); 
-  $content = str_replace(' & ', ' and ', $content); 
-//  return strip_tags($content, '<p><h1><h2><h3><h4><h5><a><pre><para>');
+  $content =html_entity_decode($content, ENT_QUOTES, 'UTF-8');
   return strip_tags($content, '<para>');
 }
 
@@ -151,7 +148,9 @@ function eml_print_person($person_tag, $content) {
       }
       else
       {
-      	eml_print_line('organizationName', "NTL LTER");
+        $last_settings = prepare_settings();     
+        $default_organization = $last_settings['last_acronym'] . ' LTER';
+      	eml_print_line('organizationName', $default_organization);
       }
       
       if ($person_address[0]['value'] ||
@@ -176,7 +175,7 @@ function eml_print_person($person_tag, $content) {
       }
       if($person_personid[0]['value']){
 	     // Url for datafile urls, using Drupal variable
-         $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/';
+        // $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/'; // put in eml_variables
 	     eml_print_line('userId', $person_personid[0]['value'],'directory',$urlBase);
       }
 	  if (in_array($person_tag, $not_show_role)) {

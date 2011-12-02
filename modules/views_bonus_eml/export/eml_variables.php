@@ -215,7 +215,7 @@ class EMLDataSet {
     $last_settings = prepare_settings();     
 
     // global $user;
-
+    $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/';
     $current_destination = drupal_get_destination();
     if (!$last_settings['last_acronym']) {
       drupal_set_message("Please provide the site specific settings");
@@ -257,5 +257,4 @@ class EMLDataSet {
 //   $package_id = 'knb-lter-' . $acr . '.' . $dataset_id[0]['value']  . '.' . $ver_vid;
    $package_id = $dataset->package_id;
    $realNumber = 'real';
-
  }

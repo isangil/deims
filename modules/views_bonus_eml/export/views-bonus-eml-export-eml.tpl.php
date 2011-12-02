@@ -78,7 +78,7 @@ eml_print_person('metadataProvider', $metadata_provider_arr);
   }    
         
  //pubDate
-$dataset_publication_date = preg_replace('/\s00:00:00/', '', $dataset_publication_date[0]['value']); 
+  $dataset_publication_date = date("Y", $dataset_publication_date[0]['value']); 
 eml_print_all_values('pubDate',  $dataset_publication_date);
 
 eml_print_line('language', $last_settings['last_language']);
@@ -151,7 +151,7 @@ $dataset_datafile_path = $dataset_node['dataset_datafiles'][0]['datafile']->fiel
 if (isset($dataset_datafile_path) && !isset($dataset_node['dataset_datafiles'][1])) {
   eml_open_tag('distribution');
     eml_open_tag('online');
-      eml_print_line('url', $urlBase . dirname($dataset_datafile_path));
+    eml_print_line('url', $urlBase . $dataset_node['dataset']->path);
 	eml_close_tag('online');
   eml_close_tag('distribution');
 }
@@ -201,7 +201,12 @@ if ($dataset_maintenance[0]['value']) {
   eml_close_tag('maintenance');
 }
 
-eml_print_person('contact', $dataset_node['dataset_contact']);
+if (isset($dataset_node['dataset_contact'][0]->nid)) {
+  eml_print_person('contact', $dataset_node['dataset_contact']);
+}
+else {
+  eml_print_person('contact', $metadata_provider_arr);
+}
 //publisher, specific for every given site from config file,
 eml_print_person('publisher', $publisher_arr);
 eml_print_line('pubPlace', $eml_site_name);
@@ -382,7 +387,7 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
                     }
                   eml_close_tag('numericDomain');
                eml_close_tag('ratio');
-             }elseif ($var->code_definition) {
+             }elseif (isset ($var->code_definition)) {
                eml_open_tag('nominal');
                  eml_open_tag('nonNumericDomain');
                    $code_definitions = $var->code_definition;
@@ -438,7 +443,8 @@ if(is_array ($stmmlunits)){
 eml_open_tag('additionalMetadata');
    eml_open_tag('metadata');
      eml_open_tag('stmml:unitList xsi:schemaLocation="http://www.xml-cml.org/schema/stmml-1.1 http://nis.lternet.edu/schemas/EML/eml-2.1.0/stmml.xsd"');
-		foreach ($stmmlunits as $stmmlunit){
+     $stmmlunits = array_unique($stmmlunits);
+     foreach ($stmmlunits as $stmmlunit){
 		   print "<stmml:unit " .  $stmmlunit . "\n";;
 		}
       eml_close_tag('stmml:unitList');	
