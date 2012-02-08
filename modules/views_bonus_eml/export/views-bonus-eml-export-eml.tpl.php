@@ -378,14 +378,12 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        eml_open_tag('attribute');
        if ($var->field_var_name){ //NTL specific
          eml_print_line('attributeName', $var->field_var_name);
-         //is this if statement necessary? they should all have a title (CG)
-       } elseif (!isset($var->title)) {
-         eml_print_line('attributeName', $var->name);
-       } else {
+       } else { //all others
          eml_print_line('attributeName', $var->title);
        }
        eml_print_all_values('attributeLabel', $var->label);
        eml_print_all_values('attributeDefinition', $var->definition);
+       
        eml_open_tag('measurementScale');
        if ($var->formatstring) {
          eml_open_tag('dateTime');
@@ -415,7 +413,7 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
            }
            eml_close_tag('numericDomain');
            eml_close_tag('ratio');
-       } elseif (isset ($var->code_definition)) {
+       } elseif ($var->code_definition) {
          eml_open_tag('nominal');
          eml_open_tag('nonNumericDomain');
          $code_definitions = $var->code_definition;
@@ -449,7 +447,7 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         eml_close_tag('nominal');
       }  
       eml_close_tag('measurementScale');
-      if (isset($var->missingvalues)) {
+      if ($var->missingvalues) {
         eml_open_tag('missingValueCode');
         foreach ($var->missingvalues as $missingvalue) {
           if (preg_match("/(.+)=(.+)/", $missingvalue, $matches)) {
