@@ -52,6 +52,7 @@ function eml_value($variable) {
     return NULL;
   }
 }
+
 function prepare_settings() {
   unset($last_settings);
 
@@ -70,8 +71,11 @@ function prepare_settings() {
 
 // add allowed xml tags here and convert any html special characters which are not allow in xml.
 function eml_strip_tags($content = '') {
-  $content =html_entity_decode($content, ENT_QUOTES, 'UTF-8');
-  return strip_tags($content, '<para>');
+  $content = html_entity_decode($content, ENT_QUOTES, 'UTF-8');
+  $content = str_replace('&nbsp;', ' ', $content);  
+  $content = str_replace('&amp;', ' and ', $content); 
+  $content = str_replace(' & ', ' and ', $content); 
+  return strip_tags($content, '<para><literalLayout>');
 }
 
 function eml_open_tag($tag) {
@@ -115,6 +119,7 @@ function eml_print_all_methods($tag, $content) {
 function eml_print_person($person_tag, $content) {
   if ($content[0]->nid) {
     foreach ($content as $person_node) {
+      $person_full_name	    = $person_node->title;
       $person_first_name    = $person_node->field_person_first_name;
       $person_last_name     = $person_node->field_person_last_name;
       $person_organization  = $person_node->field_person_organization;
@@ -137,11 +142,20 @@ function eml_print_person($person_tag, $content) {
       } else {
         eml_open_tag('associatedParty');
       }
+      //if it is person it should have a last name
       if($person_last_name[0]['value']){
         eml_open_tag('individualName');
           eml_print_all_values('givenName',        $person_first_name);
           eml_print_all_values('surName',          $person_last_name);
         eml_close_tag('individualName');
+      }
+     //otherwise it is must be an organization or position
+      else
+      {
+      	      //if no role is assigned to this user it must be a position e.g. lead pi or IM
+      	if ($person_role !== 'NONE'){
+      	  eml_print_all_values('positionName',       $person_full_name);
+      	}
       }
       if ($person_organization[0]['value']) {
         eml_print_all_values('organizationName',       $person_organization);
@@ -370,4 +384,5 @@ function custom_unit_lookup($unitname){
   $unitout=' id="'.$unitname.'"/>';
   return array(0,$unitout);
 }
+
 // public functions end
