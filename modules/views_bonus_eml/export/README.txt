@@ -14,11 +14,11 @@ You can use default view with path as "eml_view/NODE_ID" or change it:
 5. Optionally, you can choose to attach this to another of your displays by
    updating the "Attach to:" option in feed settings.
 
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 views-bonus-eml-export-eml.tpl.php
-1. creates a template
-2. populates data into the template
+1. creates a EML template
+2. populates metadata data into the template
 
 eml_variables.php
 1. takes all the dataset related data from db in an Array
@@ -26,3 +26,44 @@ eml_variables.php
 
 eml_functions.php
 functions, used in previous two files, goes here
+
+
+--------------------------------------------------------------------------------
+A few assumption for the content in Drupal are made:
+
+Party element:
+A 'positionName' element is used when the 'person' doesn't contain a last name 
+but a role is specified. E.g. the person node title is 'Site Lead PI' and the 
+role is 'LPI' and no last name is entered the following EML will be produced:
+
+<...>
+ <positionName>FLS Lead PI</positionName>
+  <address>
+   <deliveryPoint>Department for Ecology</deliveryPoint>
+   <deliveryPoint>Fictitious State University</deliveryPoint>
+   <deliveryPoint>PO Box 111111</deliveryPoint>
+   <city>Ficity</city>
+   <administrativeArea>FI</administrativeArea>
+   <postalCode>11111-1111</postalCode>
+  </address>
+ <phone phonetype="voice">(999) 999-9999</phone>
+ <electronicMailAddress>fsu.leadPI@fi.univ.edu</electronicMailAddress>
+ <onlineUrl>http://www.fsu.edu/</onlineUrl>
+<...>
+
+To trigger an organizationName tag, only use the organization field, 
+no last name, and no role, i.e. role = NONE
+
+Dataset Contact:
+May be connected to the dataset as regular Person node. If nobody is identified 
+the program will use the metadataProvider from the eml_config node.
+
+Keywords:
+The keywords now come out in different sets according to their respective
+taxnomies for the following taxonomy names:
+'LTER Keywords', 'ACRnym Keywords' (e.g. 'SEV Keywords'), 'Keywords'
+
+If taxnomies with a different name are used in combination with these,
+those names will need to be added to the code.
+
+
