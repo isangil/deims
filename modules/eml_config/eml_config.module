@@ -1,0 +1,23 @@
+<?php
+// $Id: eml_config.module, v 2.0 2010-11-22 ashipunova $
+/*
+ * Form for eml settings, required by views_bonus_eml_export
+ * ?q=eml_config
+*/
+
+function eml_config_menu() {
+  
+  $items = array();
+  $items['eml_config'] = array (
+    'title' => t('Create an EML config file'),
+    'page callback' => 'eml_config_page',
+    'access arguments' => array('administer nodes'),
+    'type' => MENU_SUGGESTED_ITEM,
+    'file' => 'eml_config_form.inc',
+    );
+  return $items;
+}
+
+function eml_config_page() {
+  return drupal_get_form('eml_config_form');
+}
