@@ -45,7 +45,7 @@ e.g.
   * physical
    * temperature
   * chemical
-   *- - 
+   *  
 
 
 ===Configuration for the data download:===
@@ -55,3 +55,12 @@ In the file sites/default/settings.php set the login for the database that holds
 $db_url = 'mysql://userID:password@localhost/databasename';
 
 Create a Page node titled 'Data Access Policy', the body of which will be displayed when a user requests data.
+
+
+=URL=
+
+The URL for data query is:
+
+your.domain.edu/data/filter/[nid]
+
+This will bring up the form to enter some information for who is downloading the data and why,  displays the data access policy and then forwards the user to the query application. The query is entirely build based on the dataset metadata.
