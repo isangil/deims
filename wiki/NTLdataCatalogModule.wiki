@@ -60,7 +60,8 @@ Create a Page node titled 'Data Access Policy', the body of which will be displa
 =URL=
 
 The URL for data query is:
-
+{{{
 your.domain.edu/data/filter/[nid]
+}}}
 
 This will bring up the form to enter some information for who is downloading the data and why,  displays the data access policy and then forwards the user to the query application. The query is entirely build based on the dataset metadata.
