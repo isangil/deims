@@ -1,0 +1,18 @@
+<?php
+function datacatalog_schema() {
+  $schema = array();
+  $schema['datacatalog_requests'] = array(
+    'fields' => array(
+      'requestdate' => array('type' => 'datetime', 'not null' => TRUE),
+      'name'     => array('type' => 'varchar', 'length' => 40, 'not null' => TRUE, 'default' => ''),
+      'email'     => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => ''),
+      'purpose'     => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => ''),
+      'datafile_nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+    ),
+  );
+  return $schema;
+}
+
+function datacatalog_install() {
+  drupal_install_schema('datacatalog');
+}

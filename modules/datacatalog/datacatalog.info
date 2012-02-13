@@ -1,0 +1,13 @@
+; $Id: form_example.info,v 1.1.2.1 2010/04/02 05:29:06 rfay Exp $
+name = LTER DataCatalog
+version = "6.x-2.x-dev"
+description = Queries an LTER/DEIMS database
+package = Database
+core = 6.x
+dependencies[] = date_popup
+dependencies[] = dbtng
+dependencies[] = content_taxonomy
+files[] = datacatalog.install
+files[] = datacatalog.module
+files[] = datacatalog.inc
+files[] = datacatalog.css

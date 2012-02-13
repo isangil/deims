@@ -1,0 +1,132 @@
+<?php
+// $Id: $
+
+/**
+ * @file
+ */
+
+define(MODULE_PATH, drupal_get_path('module', 'datacatalog'));
+
+
+
+/**
+ * Implements hook_init() which runs on every page load
+ */
+function datacatalog_init() {
+  drupal_add_css(MODULE_PATH .'/datacatalog.css');
+
+  if ($_SERVER['HTTPS']) {
+      ini_set('session.cookie_secure', 1);
+  }
+
+  $audit = $_SESSION['audit'];
+  if (!empty($audit) && empty($audit['cookie_sent'])) {
+    $cookie = json_encode(
+      array(
+        'name' => $audit['values']['name'],
+        'email' => $audit['values']['email'],
+#       'institution' => $audit['values']['institution'],
+#       'address' => $audit['values']['address'],
+#       'phone' => $audit['values']['phone'],
+        'purpose' => $audit['values']['purpose'],
+    ));
+  
+    //drupal_set_message('setting cookie');
+//    dpm('saving cookie: ' . $cookie);
+		setcookie('datacatalog_audit', $cookie, time() + 31536000, '/');
+    $_SESSION['audit']['cookie_sent'] = true;
+  }
+}
+
+/**
+ * Implements hook_menu() to set up the URLs (menu entries) for the
+ * form examples.
+ */
+function datacatalog_menu() {
+  $site_short_name = variable_get('site_short_name', 'NTL-LTER');
+  $items = array();
+  $items['datacatalog/search'] = array(
+    'title' => "Data Catalog Query",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('datacatalog_datasearch_form'),
+    'access callback' => TRUE,
+    'file' => 'datacatalog.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['data/filter/%'] = array(
+    'title' => "Data Download Filter",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('datacatalog_datadownload_form', 2),
+    'access callback' => TRUE,
+    'file' => 'datacatalog.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['data/download'] = array(
+    'title' => 'Data Results',
+    'page callback' => 'datacatalog_dataresults',
+    'access callback' => TRUE,
+    'file' => 'datacatalog.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['data/download/%'] = array(
+    'title' => "Data Download",
+    'page callback' => 'datacatalog_dataresults',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'file' => 'datacatalog.inc',
+    'type' => MENU_CALLBACK,
+  );
+  //may not need this?
+  $items['datacatalog/audit'] = array(
+    'title' => 'Data Catalog Access',
+    'page callback' => 'datacatalog_audit',
+    'access callback' => TRUE,
+    'file' => 'datacatalog.inc',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function datacatalog_form_alter(&$form, $form_state, $form_id) {
+  // Normally a switch is used because you may want to alter more than
+  // one form and it is easy to add a new case for each form.
+  switch ($form_id) {
+    // This is our form ID.
+    case 'datacatalog_datadownload_form':
+    #dpm($form);
+      // Our kickin' mods go here.
+      break;
+  }
+}
+
+/**
+ * Implements hook_help() to provide a bit of help.
+ */
+function datacatalog_help($path, $arg) {
+  switch($path) {
+    case 'datacatalog/search':
+//      $help = t('datacatalog datacatalog help text goes here');
+  }
+  if (!empty($help)) {
+    return '<p>' . $help . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme() to register theming functions
+ */
+function datacatalog_theme() {
+  return array(
+    'datacatalog_datasearch_form' => array(
+        'file' => 'datacatalog.inc',
+        'arguments' => array('form'),
+    ),
+    'datacatalog_datadownload_form' => array(
+        'file' => 'datacatalog.inc',
+        'arguments' => array('form'),
+    ),
+  );
+}

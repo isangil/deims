@@ -1,0 +1,27 @@
+.form-inline .form-item {
+  float: left;
+  margin-right: 15px;
+}
+
+.form-radios-horiz .form-item label {
+   float: left;
+   margin-right: 0.5em;
+}
+/*
+.form-radios-horiz .form-item select {
+   float: left;
+   margin-right: 0.5em;
+}
+.form-radios-horiz .form-item .description {
+   float: left;
+   margin-right: 0.5em;
+}
+*/
+.form-radios-horiz .form-item .form-radios .form-item label {
+  float: left;
+  margin-right: 1em;
+}
+.clear {
+    clear: both;
+}
+
