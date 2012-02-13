@@ -1,5 +1,4 @@
 
-
 = Introduction =
 
 This module creates a custom search page and then access to data in a different database to make them queryable.
@@ -50,9 +49,8 @@ Theme
 
 ===Configuration for the data download:===
 
-In the file sites/default/settings.php set the login for the database that holds
-the actual data e.g. add the line:
+In the file sites/default/settings.php set the login for the database that holds the actual data e.g. add the line:
+
 $db_url = 'mysql://userID:password@localhost/databasename';
 
-Create a Page node titled 'Data Access Policy', the body of which will be 
-displayed when a user requests data.
+Create a Page node titled 'Data Access Policy', the body of which will be displayed when a user requests data.
