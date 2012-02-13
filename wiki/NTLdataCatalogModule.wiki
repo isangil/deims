@@ -1,6 +1,6 @@
 = Introduction =
 
-This module creates a custom search page and then access to data in a different database to make them queryable.
+This module creates a custom search page and then access to data in a different database to make them queryable. This module is not very Drupallized with most of the code in one big file (datacatolg.inc) and could benefit from some input by other sites to at least make it less NTL centric.
 
 
 = Files=
