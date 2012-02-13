@@ -1,8 +1,8 @@
-#This module creates a custom search page and then access to data in a different database to make them queryable.
+
 
 = Introduction =
 
-Add your content here.
+This module creates a custom search page and then access to data in a different database to make them queryable.
 
 
 = Files=
