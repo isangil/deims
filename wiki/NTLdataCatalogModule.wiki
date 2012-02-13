@@ -1,4 +1,3 @@
-
 = Introduction =
 
 This module creates a custom search page and then access to data in a different database to make them queryable.
@@ -30,19 +29,27 @@ called 'Project' and 'Theme', nested underneath these two up to two more levels
 of keywords may be used. These will show up in the two pulldowns up top:
 
 e.g.
+*
 Project
+**
 - core datasets
 - associated datasets
 - IGERT
 - CNHS
-- 
+-
+* 
 Theme
+**
 - LTER core areas
+***
 - - inorganic nutrients
 - - populations
 - - 
+**
 - physical
+***
 - - temperature
+**
 - chemical
 - - 
 
