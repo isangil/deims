@@ -55,7 +55,26 @@ $db_url = 'mysql://userID:password@localhost/databasename';
 Create a Page node titled 'Data Access Policy', the body of which will be 
 displayed when a user requests data.
 
+Add a field to the data file content type:
+Name: field_datafile_external_source
+Label: External Source
+type: text field
+size: 120
+not required
 
+This field holds the table name in the format of databasename.tablename
+it can also be used for an external url (e.g. if shape files are located in 
+postGIS and served through GEOserver) The datacatalog module checks to see if this
+is a URL or a table name.
 
+--------------------------------------------------------------------------------
+URL
 
+The URL for data query is:
+
+your.domain.edu/data/filter/[nid]
+
+This will bring up the form to enter some information for who is downloading 
+the data and why,  displays the data access policy and then forwards the user to
+the query application. The query is entirely build based on the dataset metadata.
 
