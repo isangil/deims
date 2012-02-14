@@ -59,9 +59,13 @@ Create a Page node titled 'Data Access Policy', the body of which will be displa
 Add a field to the data file content type:
 
 _Name:_ field_datafile_external_source
+
 _Label:_ External Source
+
 _type:_ text field
-_size: 120_
+
+_size:_ 120
+
 not required
 
 
