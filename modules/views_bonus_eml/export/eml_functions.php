@@ -189,8 +189,8 @@ function eml_print_person($person_tag, $content) {
       }
       if($person_personid[0]['value']){
 	     // Url for datafile urls, using Drupal variable
-        // $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/'; // put in eml_variables
-	     eml_print_line('userId', $person_personid[0]['value'],'directory',$urlBase);
+         $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/'; // put in eml_variables
+	 eml_print_line('userId', $person_personid[0]['value'],'directory',$urlBase);
       }
 	  if (in_array($person_tag, $not_show_role)) {
         eml_close_tag($person_tag);
