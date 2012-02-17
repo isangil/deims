@@ -161,7 +161,7 @@ eml_close_tag('intellectualRights');
 	
   eml_open_tag('distribution');
     eml_open_tag('online');
-      eml_print_line('url', $urlBase ."node/". $dataset_node['dataset']->nid, 'function', 'information');
+      eml_print_line('url', 'http://' . $_SERVER['HTTP_HOST'] . '/node/'. $dataset_node['dataset']->nid, 'function', 'information');
     eml_close_tag('online');
   eml_close_tag('distribution');	
 //}
@@ -331,7 +331,7 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        foreach ($file_data_file as $file_data) { //this really should be only one for each entity, right? (CG)
           eml_open_tag('distribution');
             eml_open_tag('online');
-              eml_print_line('url', $urlBase . $file_data['filepath'], 'function', 'download');
+              eml_print_line('url', 'http://' . $_SERVER['HTTP_HOST'] . '/' . $file_data['filepath'], 'function', 'download');
             eml_close_tag('online');
           eml_close_tag('distribution');
        }
@@ -385,11 +385,23 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        eml_print_all_values('attributeDefinition', $var->definition);
        
        eml_open_tag('measurementScale');
+       
+       //get any code=definition fields - they exist for every variable, but may
+       //have a value of NULL. Which seems hard to test for (CG).
+       $code_definitions = $var_node->field_code_definition;
+       if (!is_array($code_definitions)){ 
+         $code_definitions = array($code_definitions);
+       } 
+       eml_print_line('codeCount', count($code_definitions));
+       eml_print_line('test', $code_definitions[0][value]);
+       
+       //now check for format string which means it is date
        if ($var->formatstring) {
          eml_open_tag('dateTime');
            eml_print_all_values('formatString', $var->formatstring);
          eml_close_tag('dateTime');
-       } elseif  ($var->unit ) {
+       //if not a date, check for a unit, which means it is numeric (ratio) field
+       } elseif  ($var->unit) {
          eml_open_tag('ratio');
          eml_open_tag('unit');
 	 list($is_standard,$eml_unit) = custom_unit_lookup($var->unit);
@@ -413,31 +425,23 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
            }
            eml_close_tag('numericDomain');
            eml_close_tag('ratio');
-       } elseif ($var->code_definition) {
+       //check if the code_definition is real
+       } elseif (substr_count($code_definitions[0][value], '=')>0) {
+         eml_print_line('test', $code_definitions[0][value]);
          eml_open_tag('nominal');
          eml_open_tag('nonNumericDomain');
-         $code_definitions = $var->code_definition;
-         if (!is_array($code_definitions)){ 
-           $code_definitions = array($code_definitions);
-         } 
          eml_open_tag('enumeratedDomain');
-         foreach ($code_definitions as $code_definition) { 
-           if (preg_match("/(.+)=(.+)/", $code_definition[value], $matches)) {     
+         foreach ($code_definitions as $code_definition) {
+           $parts = explode("=", $code_definition[value]);
              eml_open_tag('codeDefinition');
-             eml_print_line('code', $matches[1]);
-             eml_print_line('definition', $matches[2]);
+             eml_print_line('code', $parts[0]);
+             eml_print_line('definition', $parts[1]);
              eml_close_tag('codeDefinition');
-           } else {
-             eml_open_tag('codeDefinition');
-             eml_print_line('code', 'didnt match the equal');
-             eml_print_line('definition', 'printed this msg');
-             eml_close_tag('codeDefinition');
-          } 
         }
         eml_close_tag('enumeratedDomain');
         eml_close_tag('nonNumericDomain');
         eml_close_tag('nominal');
-      } else {  // any other case
+      } else {  // any other case is a nonnumeric domain
         eml_open_tag('nominal');
         eml_open_tag('nonNumericDomain');
         eml_open_tag('textDomain');
