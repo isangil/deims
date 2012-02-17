@@ -1254,8 +1254,17 @@ function export_to_csv($result, $filename="myfile.csv"){
 
   while($row = db_fetch_array($result)){
     foreach($row as $value){
-      #$values[] = '"' . str_replace('"', '""', decode_entities(strip_tags($value))) . '"';
+    //put quotes around string values only
+      if(is_numeric(trim($value)) || strlen(trim($value))< 1){ //check for numbers and empty fields
+    	$values[] = trim($value);
+      } 
+      elseif(is_numeric(strtotime($value))) { //check for dates
+      	$values[] = trim($value);
+      }
+      else {  //put quotes around text
+      //#$values[] = '"' . str_replace('"', '""', decode_entities(strip_tags($value))) . '"';
       $values[] = '"' . str_replace('"', '""', decode_entities($value)) . '"';
+      }
     }
     print implode(',', $values) ."\r\n";
     unset($values);
