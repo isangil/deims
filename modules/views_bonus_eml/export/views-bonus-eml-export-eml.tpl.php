@@ -425,7 +425,6 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
            eml_close_tag('ratio');
        //check if the code_definition is real
        } elseif (substr_count($code_definitions[0][value], '=')>0) {
-         eml_print_line('test', $code_definitions[0][value]);
          eml_open_tag('nominal');
          eml_open_tag('nonNumericDomain');
          eml_open_tag('enumeratedDomain');
