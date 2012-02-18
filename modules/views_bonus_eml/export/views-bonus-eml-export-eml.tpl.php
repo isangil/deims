@@ -392,8 +392,6 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        if (!is_array($code_definitions)){ 
          $code_definitions = array($code_definitions);
        } 
-       eml_print_line('codeCount', count($code_definitions));
-       eml_print_line('test', $code_definitions[0][value]);
        
        //now check for format string which means it is date
        if ($var->formatstring) {
