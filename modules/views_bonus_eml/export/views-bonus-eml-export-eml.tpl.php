@@ -73,11 +73,9 @@ eml_print_person('metadataProvider', $metadata_provider_arr);
   }    
         
  //pubDate
- if (checkdate(date("Y",$dataset_publication_date[0]['value']),
- 	 date("m",$dataset_publication_date[0]['value']),
- 	 date("d",$dataset_publication_date[0]['value'])) == TRUE) {
-  $dataset_publication_date = date("Y", $dataset_publication_date[0]['value']); 
-eml_print_all_values('pubDate',  $dataset_publication_date);
+ if (strtotime($dataset_publication_date[0]['value'])) {
+  $dataset_publication_date = date("Y",  strtotime($dataset_publication_date[0]['value'])); 
+  eml_print_all_values('pubDate',  $dataset_publication_date);
  }
 
 eml_print_line('language', $last_settings['last_language']);
@@ -284,6 +282,7 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         $file_entity_name     = $file_var_array['datafile']->field_datafile_entity_name[0]['value'];
         $file_external_source = $file_var_array['datafile']->field_datafile_external_source[0]['value']; //NTL use for data query app
 	$file_title           = $file_var_array['datafile']->title;
+	$file_archive_url     = $file_var_array['datafile']->field_datatable_archiveurl[0]['value']; //NTL storage place for csv archive data files
 
     eml_open_tag('dataTable');
 
@@ -327,7 +326,14 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         eml_close_tag('simpleDelimited');
       eml_close_tag('textFormat');
     eml_close_tag('dataFormat');
-    if ($file_data_file && $file_data_file[0]['filepath']) {
+    if ($file_archive_url){//this is used by NTL to generate the download link for archived csv files
+          eml_open_tag('distribution');
+            eml_open_tag('online');
+              eml_print_line('url', $file_archive_url, 'function', 'download');
+            eml_close_tag('online');
+          eml_close_tag('distribution');          
+    }
+    elseif ($file_data_file && $file_data_file[0]['filepath']) {
        foreach ($file_data_file as $file_data) { //this really should be only one for each entity, right? (CG)
           eml_open_tag('distribution');
             eml_open_tag('online');
@@ -384,7 +390,6 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        eml_print_all_values('attributeLabel', $var->label);
        eml_print_all_values('attributeDefinition', $var->definition);
        
-       eml_open_tag('measurementScale');
        
        //get any code=definition fields - they exist for every variable, but may
        //have a value of NULL. Which seems hard to test for (CG).
@@ -395,11 +400,15 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        
        //now check for format string which means it is date
        if ($var->formatstring) {
+       	 eml_print_all_values('storageType', 'date');
+         eml_open_tag('measurementScale');
          eml_open_tag('dateTime');
            eml_print_all_values('formatString', $var->formatstring);
          eml_close_tag('dateTime');
        //if not a date, check for a unit, which means it is numeric (ratio) field
        } elseif  ($var->unit) {
+       	 eml_print_all_values('storageType', 'float');
+         eml_open_tag('measurementScale');
          eml_open_tag('ratio');
          eml_open_tag('unit');
 	 list($is_standard,$eml_unit) = custom_unit_lookup($var->unit);
@@ -425,6 +434,8 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
            eml_close_tag('ratio');
        //check if the code_definition is real
        } elseif (substr_count($code_definitions[0][value], '=')>0) {
+       	 eml_print_all_values('storageType', 'string');
+         eml_open_tag('measurementScale');
          eml_open_tag('nominal');
          eml_open_tag('nonNumericDomain');
          eml_open_tag('enumeratedDomain');
@@ -439,6 +450,8 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         eml_close_tag('nonNumericDomain');
         eml_close_tag('nominal');
       } else {  // any other case is a nonnumeric domain
+       	 eml_print_all_values('storageType', 'string');
+         eml_open_tag('measurementScale');
         eml_open_tag('nominal');
         eml_open_tag('nonNumericDomain');
         eml_open_tag('textDomain');
