@@ -84,15 +84,20 @@ function datacatalog_dosearch($input) {
   $r .= "<ul>";
 
   $query = db_select('node', 'n')->distinct()
-    ->fields('n', array('nid', 'title'))
-    ->condition('n.type', 'data_set', '=');
+    ->fields('n', array('nid', 'title'));
 
   $query->join('content_type_data_set', 'ds', 'n.nid = ds.nid AND n.vid = ds.vid');
 
   if (db_column_exists('content_type_data_set', 'field_dataset_query_visible_value')) {
     // This column is used by NTL to hide some datasets from being searchable
     // with this module.  Other sites may not need it, so we make it optional.
-    $query->condition('ds.field_dataset_query_visible_value', 'N', '!=');
+    $query
+      ->condition(db_and()->condition('n.type', 'data_set', '=')->condition('ds.field_dataset_query_visible_value', 'N', '!='));
+      
+  }
+  else
+  {
+    $query->condition('n.type', 'data_set', '=');
   }
   
   $projects = $values["project"];
@@ -166,11 +171,19 @@ function datacatalog_dosearch($input) {
       case 'keyword':
         $term_array = taxonomy_get_term_by_name($val);
         $tids = array();
-        foreach ($term_array as $term) {
-          $tids[] = $term->tid;
+        if (!empty($term_array)){
+          foreach ($term_array as $term) {
+            $tids[] = $term->tid;
+          }
+          $tids = mysql_real_escape_string(implode($tids, ", "));
+          $metacond->where("EXISTS (SELECT tn.vid FROM {term_node} tn WHERE n.vid = tn.vid AND tn.tid IN ($tids))");
+          $numcond++;
         }
-        $tids = mysql_real_escape_string(implode($tids, ", "));
-        $query->where("EXISTS (SELECT tn.vid FROM {term_node} tn WHERE n.vid = tn.vid AND tn.tid IN ($tids))");
+        else
+        {
+          $metacond->where("EXISTS (SELECT tn.vid FROM {term_node} tn WHERE n.vid = tn.vid AND tn.tid IN (0))");
+          $numcond++;
+        }
         break;
       case 'column_description':
         //We add $i to tables aliases in these joins to distinguish them from subsequent criteria of the same type
@@ -249,7 +262,7 @@ function datacatalog_dosearch($input) {
   }
   
   $query->orderBy("title", "ASC");
-
+  //$r .= "<br/>This is the query string: ".$query."<br/>"; //use this for debugging when the query doesn't work
   $result = $query->execute();
   
   $count = 0;
@@ -1258,7 +1271,7 @@ function export_to_csv($result, $filename="myfile.csv"){
       if(is_numeric(trim($value)) || strlen(trim($value))< 1){ //check for numbers and empty fields
     	$values[] = trim($value);
       } 
-      elseif(is_numeric(strtotime($value))) { //check for dates
+      elseif(is_numeric(strtotime($value)) && strlen(trim($value))>7) { //check for dates
       	$values[] = trim($value);
       }
       else {  //put quotes around text
