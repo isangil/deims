@@ -103,12 +103,14 @@ foreach ($all_vocabularies as $voc) {
 if (!empty($keyword_vids)) {
   foreach ($keyword_vids as $vid) {
     $voc_terms = taxonomy_node_get_terms_by_vocabulary($dataset->node, $vid);
-    eml_open_tag('keywordSet');
-    foreach ($voc_terms as $keyword){
-      eml_print_line('keyword', $keyword->name);
+    if (!empty($voc_terms)){
+      eml_open_tag('keywordSet');
+      foreach ($voc_terms as $keyword){
+        eml_print_line('keyword', $keyword->name);
+      }
+      eml_print_line('keywordThesaurus', $all_vocabularies[$vid]->name);
+      eml_close_tag('keywordSet');
     }
-    eml_print_line('keywordThesaurus', $all_vocabularies[$vid]->name);
-    eml_close_tag('keywordSet');
   }
 } elseif (!empty($taxonomy_vids)) { //in case a site is not using any of those names for their keyword taxonomies
   foreach($taxonomy_vids as $vid) {
@@ -396,7 +398,11 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
        $code_definitions = $var_node->field_code_definition;
        if (!is_array($code_definitions)){ 
          $code_definitions = array($code_definitions);
-       } 
+       }
+       $missing_value_definitions = $var_node->field_var_missingvalues;
+       if (!is_array($missing_value_definitions)){
+         $missing_value_definitions = array($missing_value_definitions);
+       }
        
        //now check for format string which means it is date
        if ($var->formatstring) {
@@ -440,7 +446,7 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
          eml_open_tag('nonNumericDomain');
          eml_open_tag('enumeratedDomain');
          foreach ($code_definitions as $code_definition) {
-           $parts = explode("=", $code_definition[value]);
+           $parts = explode('=', $code_definition[value]);
              eml_open_tag('codeDefinition');
              eml_print_line('code', $parts[0]);
              eml_print_line('definition', $parts[1]);
@@ -461,15 +467,14 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         eml_close_tag('nominal');
       }  
       eml_close_tag('measurementScale');
-      if ($var->missingvalues) {
-        eml_open_tag('missingValueCode');
-        foreach ($var->missingvalues as $missingvalue) {
-          if (preg_match("/(.+)=(.+)/", $missingvalue, $matches)) {
-            eml_print_line('code',       $matches[1]);
-            eml_print_line('definition', $matches[2]);
-          }
+      if (substr_count($missing_value_definitions[0]['value'], '=')>0) {
+        foreach ($missing_value_definitions as $missingvalue) {
+          $parts = explode('=', $missingvalue[value]);
+          eml_open_tag('missingValueCode');
+          eml_print_line('code',       $parts[0]);
+          eml_print_line('codeExplanation', $parts[1]);
+          eml_close_tag('missingValueCode');
         }
-            eml_close_tag('missingValueCode');
       }
       eml_close_tag('attribute');
     } //end foreach variable
