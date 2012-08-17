@@ -1,5 +1,5 @@
 <?php
-// $Id: views-bonus-eml-export-eml.tpl.php, v 3.0 11/09/10 ashipunova Exp $
+// $Id: views-bonus-eml-export-eml.tpl.php, v 3.0 2012/08/17 eneko1907 Exp $
 /*
  * Template to display a view as an eml.
  */                                                                
@@ -9,12 +9,13 @@ require_once("eml_variables.php");
   /*
    * 3) create and populate a template
    */
+ $urlBase = 'http://' . $_SERVER['HTTP_HOST'] . '/';
 print '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
 
   ?>
 
 <eml:eml xmlns:eml='eml://ecoinformatics.org/eml-2.1.0'
-         xmlns:stmml='http://www.xml-cml.org/schema/stmml'
+         xmlns:stmml='http://www.xml-cml.org/schema/stmml-1.1'
          xmlns:ds='eml://ecoinformatics.org/dataset-2.1.0'
          xmlns:xs='http://www.w3.org/2001/XMLSchema'
          xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
@@ -82,48 +83,51 @@ eml_print_line('language', $last_settings['last_language']);
 
 if ($dataset_abstract[0]['value']) {
   eml_open_tag('abstract');
-   eml_open_tag('para');
-    eml_print_all_values('literalLayout', $dataset_abstract);
-   eml_close_tag('para');
+   eml_open_tag('section');
+    eml_print_all_values('para', $dataset_abstract);
+   eml_close_tag('section');
   eml_close_tag('abstract');
 }
 
 //Check for recognized keyword vocabularies
 $all_vocabularies = taxonomy_get_vocabularies();
 $keyword_vids = array();
-$taxonomy_vids = array();
-$site_list = $last_settings['last_acronym'].' Keywords';
 foreach ($all_vocabularies as $voc) {
-  $taxonomy_vids[] = $voc->vid;
-  if ($voc->name == 'LTER Keywords' || $voc->name == $site_list || $voc->name == 'Keywords') {
-    $keyword_vids[] = $voc->vid;
-  }
-}
+  // terms in drupal 6 taxonomy core
+  $voc_terms = taxonomy_node_get_terms_by_vocabulary($dataset->node, $voc->vid);
+  $keywords = array();
+  foreach ($voc_terms as $term){
+     $keywords[] = $term->name;
+ 
 
-if (!empty($keyword_vids)) {
-  foreach ($keyword_vids as $vid) {
-    $voc_terms = taxonomy_node_get_terms_by_vocabulary($dataset->node, $vid);
-    if (!empty($voc_terms)){
+  }
+  if(!empty($keywords)) {
+      natcasesort($keywords);
       eml_open_tag('keywordSet');
-      foreach ($voc_terms as $keyword){
-        eml_print_line('keyword', $keyword->name);
+        //eml_print_all_values('keyword', $keywords);
+        foreach ($keywords as $keyword){
+           eml_print_line('keyword', $keyword);
       }
-      eml_print_line('keywordThesaurus', $all_vocabularies[$vid]->name);
+        eml_print_line('keywordThesaurus',$voc->name );
       eml_close_tag('keywordSet');
     }
+  // terms in drupal 6 content taxonomy cck
+  //  i have all the term vids in $dataset_keywordscck, 
+  //  need the subset of terms in this vocabulary
+ unset($terms);
+  foreach ( $dataset_keywordscck as  $keywordcck_id){
+    $terms=keywordscck_node_get_terms_by_vocabulary($voc->vid,$keywordcck_id);
   }
-} elseif (!empty($taxonomy_vids)) { //in case a site is not using any of those names for their keyword taxonomies
-  foreach($taxonomy_vids as $vid) {
-    $voc_terms = array();
-    $voc_terms = taxonomy_node_get_terms_by_vocabulary($dataset->node, $vid);
-    if (!empty($voc_terms)){
+  if(!empty($terms)) {
        eml_open_tag('keywordSet');
-       foreach ($voc_terms as $keyword){
-         eml_print_line('keyword', $keyword->name);
+     foreach ( $dataset_keywordscck as  $keywordcck_id){    
+       $terms=keywordscck_node_get_terms_by_vocabulary($voc->vid,$keywordcck_id);
+      foreach ($terms  as  $cckkeyword){
+         eml_print_all_values('keyword',$cckkeyword);
        }
-       eml_print_line('keywordThesaurus', $all_vocabularies[$vid]->name);
-       eml_close_tag('keywordSet');
     }
+      eml_print_line('keywordThesaurus',$voc->name );
+      eml_close_tag('keywordSet');
   }
 }
 
@@ -169,9 +173,10 @@ eml_close_tag('intellectualRights');
 if ($dataset->geodesc || $dataset->has_coor() || $dataset->site_ref || $dataset->beg_end_date) {
   eml_open_tag('coverage');
 
-  if ($dataset->geodesc || $dataset->has_coor()) {
+  if ($dataset->site_ref) {
+    eml_print_geographic_coverage($dataset_node['dataset_site']);
+  }elseif($dataset->geodesc || $dataset->has_coor()) {
     //NTL added field_dataset_description and field_dataset_coor_# to the dataset content type
-    //this needs to come first because NTL also has sites associated with datasets
     eml_open_tag('geographicCoverage');
     if($dataset->geodesc) eml_print_line('geographicDescription', $dataset->geodesc);
     if ($dataset->has_coor()) {
@@ -183,10 +188,6 @@ if ($dataset->geodesc || $dataset->has_coor() || $dataset->site_ref || $dataset-
       eml_close_tag('boundingCoordinates');
     }
     eml_close_tag('geographicCoverage');
-  }  elseif ($dataset->site_ref) {
-    //(non-NTL) get the info from the referenced Site content type instead
-    //I still think this should show up at a different place in EML (CG)
-    eml_print_geographic_coverage($dataset_node['dataset_site']);
   }
 
   if ($dataset->beg_end_date) {
@@ -230,21 +231,21 @@ if ($dataset_methods[0]['value']) {
   eml_open_tag('methods');
     eml_open_tag('methodStep');
       eml_open_tag('description');
-        if (is_array($dataset_methods)){ //NTL allows multiple methods fields which can be formatted better
-      	  foreach ($dataset_methods as $methodstep){
-           eml_open_tag('section');
-             eml_open_tag('para');    //  ISG  need to translate HTML to EML markup)
-                eml_print_all_values('literalLayout', $methodstep['value']);
-             eml_close_tag('para');
-           eml_close_tag('section');
+        if(is_array($dataset_methods)){// NTL has multiple methods fields
+          foreach($dataset_methods as $methodstep){
+            eml_open_tag('section');
+              eml_open_tag('para');    //  ISG  need to translate HTML to EML markup)
+                eml_print_all_values('literalLayout',$methodstep['value']);
+              eml_close_tag('para');
+            eml_close_tag('section');
           }
-        }else{
-           eml_open_tag('section');
-             eml_open_tag('para');    //  ISG  need to translate HTML to EML markup)
-                eml_print_all_values('literalLayout', $dataset_methods);
-             eml_close_tag('para');
-           eml_close_tag('section');
-        }        	
+         }else{
+            eml_open_tag('section');
+              eml_open_tag('para');    //  ISG  need to translate HTML to EML markup)
+               eml_print_all_methods('literalLayout', $dataset_methods);
+              eml_close_tag('para');
+            eml_close_tag('section');
+         }
       eml_close_tag('description');
       if (isset($dataset_instrumentation[0]['value'])) {
         eml_print_all_values('instrumentation', $dataset_instrumentation);
@@ -281,11 +282,10 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
 	$file_instrumentation = $file_var_array['datafile']->field_instrumentation;
 	$file_methods         = $file_var_array['datafile']->field_methods;
 	$file_quality         = $file_var_array['datafile']->field_quality;   
-        $file_entity_name     = $file_var_array['datafile']->field_datafile_entity_name[0]['value'];
-        $file_external_source = $file_var_array['datafile']->field_datafile_external_source[0]['value']; //NTL use for data query app
-	$file_title           = $file_var_array['datafile']->title;
-	$file_archive_url     = $file_var_array['datafile']->field_datatable_archiveurl[0]['value']; //NTL storage place for csv archive data files
-
+      $file_entity_name     = $file_var_array['datafile']->field_datafile_entity_name[0]['value'];
+      $file_external_source = $file_var_array['datafile']->field_datafile_external_source[0]['value'];
+      $file_title           = $file_var_array['datafile']->title;
+      $file_archive_url     = $file_var_array['datafile']->field_datatable_archiveurl[0]['value'];// NTL specific     
     eml_open_tag('dataTable');
 
     if ( !empty($file_entity_name)) { 
@@ -320,7 +320,12 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         eml_print_all_values('numHeaderLines',       $file_num_header_line);
         eml_print_all_values('numFooterLines',       $file_num_footer_lines);
         eml_print_all_values('recordDelimiter',      $file_record_delimiter);
+	 	if (isset($file_orientation[0]['value'])) {		 
         eml_print_all_values('attributeOrientation', $file_orientation);
+		}else{
+          eml_print_all_values('attributeOrientation', 'column');		
+		  print ('<!--the orientation was not set, default to column-->');
+		}
         eml_open_tag('simpleDelimited');                 
           $file_delimiter[0]['value'] ? $file_delimiter = $file_delimiter[0]['value'] : $file_delimiter = ',';        
           eml_print_line('fieldDelimiter',  $file_delimiter);
@@ -328,18 +333,18 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
         eml_close_tag('simpleDelimited');
       eml_close_tag('textFormat');
     eml_close_tag('dataFormat');
-    if ($file_archive_url){//this is used by NTL to generate the download link for archived csv files
-          eml_open_tag('distribution');
-            eml_open_tag('online');
-              eml_print_line('url', $file_archive_url, 'function', 'download');
-            eml_close_tag('online');
-          eml_close_tag('distribution');          
-    }
+    if ($file_archive_url){
+       eml_open_tag('distribution');
+         eml_open_tag('online');
+           eml_print_line('url',$file_archive_url,'function','download');
+         eml_close_tag('online');
+       eml_close_tag('distribution');
     elseif ($file_data_file && $file_data_file[0]['filepath']) {
-       foreach ($file_data_file as $file_data) { //this really should be only one for each entity, right? (CG)
+       foreach ($file_data_file as $file_data) {
           eml_open_tag('distribution');
             eml_open_tag('online');
-              eml_print_line('url', 'http://' . $_SERVER['HTTP_HOST'] . '/' . $file_data['filepath'], 'function', 'download');
+              //  eml_print_line('url', $urlDASBase . $dataset_id_sev[0]['value'] .'%26urlTail=' . $file_data['filepath']);// NO DAS
+		   eml_print_line('url', $urlBase .  $file_data['filepath'], 'function','download');
             eml_close_tag('online');
           eml_close_tag('distribution');
        }
@@ -383,41 +388,43 @@ if ($dataset_node['dataset_datafiles'] &&    $dataset_node['dataset_datafiles'][
     eml_open_tag('attributeList');
     foreach ($file_var_array['variables'] as $var_node) {
        $var = new EMLVariable($var_node);
+	   $code_definitions=$var->code_definition;  //maybe !!
        eml_open_tag('attribute');
-       if ($var->field_var_name){ //NTL specific
-         eml_print_line('attributeName', $var->field_var_name);
-       } else { //all others
-         eml_print_line('attributeName', $var->title);
+        if (!isset($var->label)) {
+        eml_print_all_values('attributeName', $var->label);
+
+        }else{
+            eml_print_line('attributeName', $var->title);
        }
-       eml_print_all_values('attributeLabel', $var->label);
+       if (!isset($var->title)) {
+            eml_print_line('attributeLabel', $var->title);
+       } else {
+            eml_print_line('attributeLabel', $var->name);//NTL
+       }
+			
        eml_print_all_values('attributeDefinition', $var->definition);
-       
-       
-       //get any code=definition fields - they exist for every variable, but may
-       //have a value of NULL. Which seems hard to test for (CG).
-       $code_definitions = $var_node->field_code_definition;
-       if (!is_array($code_definitions)){ 
-         $code_definitions = array($code_definitions);
+       $code_definitions=$var_node->field_code_definition;
+       if (!is_array($code_definitions)))
+          $code_definitions=array($code_definitions);
        }
-       $missing_value_definitions = $var_node->field_var_missingvalues;
-       if (!is_array($missing_value_definitions)){
-         $missing_value_definitions = array($missing_value_definitions);
-       }
+       $missing_value_definitions=$var_node->field_var_missingvalues;
        
-       //now check for format string which means it is date
+       if (!is_array($missing_value_definitions)))
+          $missing_value_definitions=array($missing_value_definitions);
+       }
+       //check if formatstring present (if so, it is a date)
        if ($var->formatstring) {
        	 eml_print_all_values('storageType', 'date');
          eml_open_tag('measurementScale');
          eml_open_tag('dateTime');
            eml_print_all_values('formatString', $var->formatstring);
          eml_close_tag('dateTime');
-       //if not a date, check for a unit, which means it is numeric (ratio) field
-       } elseif  ($var->unit) {
-       	 eml_print_all_values('storageType', 'float');
-         eml_open_tag('measurementScale');
+       //check if there is a unit (it means it is a ratio)
+       }elseif  ($var->unit ) {
+		      eml_open_tag('measurementScale');
          eml_open_tag('ratio');
          eml_open_tag('unit');
-	 list($is_standard,$eml_unit) = custom_unit_lookup($var->unit);
+	  list($is_standard,$eml_unit) = custom_unit_lookup($var->unit);
          if ($is_standard) {
            eml_print_all_values('standardUnit', $var->unit);
          } else {
@@ -490,7 +497,8 @@ if(is_array ($stmmlunits)){
   eml_open_tag('stmml:unitList xsi:schemaLocation="http://www.xml-cml.org/schema/stmml-1.1 http://nis.lternet.edu/schemas/EML/eml-2.1.0/stmml.xsd"');
   $stmmlunits = array_unique($stmmlunits);
   foreach ($stmmlunits as $stmmlunit){
-    print "<stmml:unit " .  $stmmlunit . "\n";;
+    // eml_print_line('stmml:unit'  $stmmlunit);  //Wouldnt work..
+    print "<stmml:unit " .  $stmmlunit . "\n";
   }
   eml_close_tag('stmml:unitList');	
   eml_close_tag('metadata');
