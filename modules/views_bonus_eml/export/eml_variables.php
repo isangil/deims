@@ -1,5 +1,5 @@
 <?php
-// $Id: views-bonus-eml-export-eml-variables.tpl.php, v 3.0 11/09/10 ashipunova Exp $
+// $Id: views-bonus-eml-export-eml-variables.tpl.php, v 3.0 08/16/12 eneko1907 Exp $
 /*
  * 1) Create an array $dataset_node with all data related to this dataset
  * 2) Calculate vid version 
@@ -95,7 +95,7 @@ class EMLDataSet {
     }
   }
 
-  public function has_coor() {
+  public function has_coor() {    //NTL specific
     return (bool) ($this->coor_n || $this->coor_s || $this->coor_e || $this->coor_w);
   }
  
@@ -118,7 +118,7 @@ class EMLDataSet {
       $node = node_load($row_nid);
       $dataset_node['dataset'] = $node;
 
-      //  refs                  
+      //  node references (related content types)                  
       $dataset_reference_names = array(
         'dataset_owner',
         'dataset_contact',
@@ -202,8 +202,10 @@ class EMLDataSet {
     $dataset_maintenance       = $dataset_node['dataset']->field_dataset_maintenance;
     $dataset_methods           = $dataset_node['dataset']->field_methods;
     $dataset_id                = $dataset_node['dataset']->field_dataset_id;
+	$dataset_id_sev            = $dataset_node['dataset']->field_dataset_sevid;
     $dataset_id_ntl            = $dataset->id;
     $dataset_related_links     = $dataset_node['dataset']->field_dataset_related_links;
+    $dataset_keywordscck       = $dataset_node['dataset']->field_dataset_keywords;
 
     if (isset($dataset_node['dataset']->field_instrumentation)){
       $dataset_instrumentation = $dataset_node['dataset']->field_instrumentation;
@@ -243,6 +245,18 @@ class EMLDataSet {
         }
       }
     }
+         
+  if ($dataset_reference_name == 'dataset_site') {
+    $fin='field_'.$dataset_reference_name.'_ref';
+	 unset($sitenids);
+     $sitenids=$node->$fin;
+	 foreach ($sitenids as $value) {
+       foreach ($value as $site_nid) {
+         $site_node = node_load($site_nid);
+		 $ver_vid += $site_node->vid;
+	   }
+	 }
+   }
 
   // vid of datafiles + variables + datafile_sites
    $flatten_files = flatten_array($dataset_node['dataset_datafiles']);
@@ -254,7 +268,7 @@ class EMLDataSet {
      }
    }
 
-//   $package_id = 'knb-lter-' . $acr . '.' . $dataset_id[0]['value']  . '.' . $ver_vid;
-   $package_id = $dataset->package_id;
+   $package_id = 'knb-lter-' . strtolower($acr) . '.' . $dataset_id[0]['value']  . '.' . $ver_vid;
+//   $package_id = $dataset->package_id;
    $realNumber = 'real';
  }
