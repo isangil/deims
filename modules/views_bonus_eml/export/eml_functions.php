@@ -1,5 +1,5 @@
 <?php
-// $Id: views-bonus-eml-export-eml-functions.tpl.php, v 1.0 2010-11-29 ashipunova Exp $
+// $Id: views-bonus-eml-export-eml-functions.tpl.php, v 1.0 2012-08-17 eneko1907 Exp $
 // TODO add @file etc
 
 /*
@@ -68,14 +68,21 @@ function prepare_settings() {
 
   return $last_settings;
 }
-
 // add allowed xml tags here and convert any html special characters which are not allow in xml.
+
+// add allowed HTML tags here
 function eml_strip_tags($content = '') {
   $content = html_entity_decode($content, ENT_QUOTES, 'UTF-8');
   $content = str_replace('&nbsp;', ' ', $content);  
   $content = str_replace('&amp;', ' and ', $content); 
-  $content = str_replace(' & ', ' and ', $content); 
-  return strip_tags($content, '<para><literalLayout>');
+  $content = str_replace('&', 'and', $content); 
+  $content = strip_tags($content, '<para>');
+  $content = str_replace('<=', ' less or equal than', $content); 
+  $content = str_replace('<', ' less than', $content); 
+  $content = str_replace('>=', ' more or equal than', $content); 
+  $content = str_replace('>', ' more than', $content); 
+//  return strip_tags($content, '<p><h1><h2><h3><h4><h5><a><pre><para>');
+  return $content;
 }
 
 function eml_open_tag($tag) {
@@ -205,16 +212,18 @@ function eml_print_person($person_tag, $content) {
 
 function eml_print_temporal_coverage($beg_end_date) {
   if ($beg_end_date[0]['value']) {
-    eml_open_tag('temporalCoverage');
     foreach($beg_end_date as $dataset_date) {
       $first_date = preg_replace('/T.*/', '', $dataset_date['value']);
       $second_date = preg_replace('/T.*/', '', $dataset_date['value2']);
       if ($first_date == $second_date) {
+		 eml_open_tag('temporalCoverage');
          eml_open_tag('singleDateTime');
            eml_print_line('calendarDate', $first_date);
          eml_close_tag('singleDateTime');
+         eml_close_tag('temporalCoverage');
       }
       else {
+		eml_open_tag('temporalCoverage');
         eml_open_tag('rangeOfDates');
           eml_open_tag('beginDate');
             eml_print_line('calendarDate', $first_date);
@@ -223,9 +232,9 @@ function eml_print_temporal_coverage($beg_end_date) {
             eml_print_line('calendarDate', $second_date);
           eml_close_tag('endDate');
         eml_close_tag('rangeOfDates');
+       eml_close_tag('temporalCoverage');
       }
     }
-    eml_close_tag('temporalCoverage');
   }
 } // end of function "eml_print_temporal_coverage"
 
@@ -245,18 +254,13 @@ function eml_print_geographic_coverage($content) {
         $research_site_elevation  = $research_site_node['site_node']->field_research_site_elevation;
         $research_site_longitude  = $research_site_node['longitude'];
         $research_site_latitude   = $research_site_node['latitude'];
-        if ($research_site_location               ||
-		    $research_site_landform[0]['value']   ||
-            $research_site_geology[0]['value']    ||
-            $research_site_soils[0]['value']      ||
-            $research_site_hydrology[0]['value']  ||
-            $research_site_vegetation[0]['value'] ||
-            $research_site_climate[0]['value']    ||
-            $research_site_history[0]['value']    ||
-            $research_site_siteid[0]['value']     ||
-            $research_site_longitude              ||
-            $research_site_latitude               ||
-            $research_site_elevation[0]['value']) {
+        if (
+		    ($research_site_location    || $research_site_landform[0]['value']   || $research_site_geology[0]['value']    ||
+            $research_site_soils[0]['value']  || $research_site_hydrology[0]['value']  || $research_site_vegetation[0]['value'] || 
+	        $research_site_climate[0]['value'] ||  $research_site_history[0]['value']  || $research_site_siteid[0]['value'] ) 
+			){
+			
+            if ( $research_site_longitude  || $research_site_latitude  )   {
           eml_open_tag('geographicCoverage');
             $geographic_coverage_terms = array (
                                     'Landform',
@@ -281,7 +285,6 @@ function eml_print_geographic_coverage($content) {
             }                              
             eml_print_line('geographicDescription', $geoDesc);
 
-            if ($research_site_longitude || $research_site_latitude) {
               eml_open_tag('boundingCoordinates');
                 eml_print_line('westBoundingCoordinate',  $research_site_longitude);
                 eml_print_line('eastBoundingCoordinate',  $research_site_longitude);
@@ -295,8 +298,10 @@ function eml_print_geographic_coverage($content) {
                   eml_close_tag('boundingAltitudes');
               }
               eml_close_tag('boundingCoordinates');
+              eml_close_tag('geographicCoverage');
+		    }else{
+			    print ('<!--coordinates for the location: '.  $research_site_node['site_node']->title.' not set, please revisit-->');
             }
-          eml_close_tag('geographicCoverage');
         } // endif; check if values exist
     } // endforeach; research_site_nid
   } // endif; $research_site_nid[0]['nid']
@@ -337,6 +342,24 @@ function eml_get_geo($site_nid) {
     return $site_nodes;
   }
 
+
+//function keywordscck_node_get_terms_by_vocabulary($vid,$tid,$key = 'tid') {
+function keywordscck_node_get_terms_by_vocabulary($vid,$tid) {
+ // note, if there is a table prefix, please put it before "term_data", otherwise, this will fail
+  $query=    "SELECT name  FROM term_data   WHERE vid = '%d' AND tid ='%d'";
+  $vtid=$tid['value'];
+ // $query=    "SELECT name FROM term_data  WHERE vid =$vid AND tid =$vtid";
+  $result = db_query($query,$vid,$vtid);
+   //  $result = db_query("SELECT name FROM term_data WHERE vid =$vid AND tid =$vtid");
+    $terms = array();
+    //while ($term = db_fetch_array($result)) {
+     //  $terms[]= $term['name'];
+      //  $termscck[]= $term;
+    //}
+    $terms = db_fetch_array($result);
+    return $terms;
+  }
+
 function flatten_array($array, $preserve_keys = 0, &$out = array()) {
   if ($array) {
     foreach($array as $key => $child)
@@ -350,6 +373,8 @@ function flatten_array($array, $preserve_keys = 0, &$out = array()) {
   return $out;
 }
 
+//declare urlDASBase
+$urlDASBase = 'http://metacat.lternet.edu/das/dataAccessServlet?docid=knb-lter-'.strtolower($acr).'.';
 
 function custom_unit_lookup($unitname){
   $uniturlbase = "http://unit.lternet.edu/services/unitformat/stmml/unit/name=";
